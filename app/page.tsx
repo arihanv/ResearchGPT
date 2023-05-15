@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { siteConfig } from "@/config/site"
 import { Button, buttonVariants } from "@/components/ui/button"
 import Chat from "./chat/page"
 
