@@ -1,13 +1,14 @@
 "use client"
 
 import React from "react"
+import { Send } from "lucide-react"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send } from "lucide-react"
+
 import { ComboboxDemo } from "./models"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 type Props = {
   name: string
@@ -33,31 +34,34 @@ type Message = {
 // 	return res.json();
 // }
 
-
 export default function Chat({ name, age }: Props) {
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
+  const chatDivRef = React.useRef<HTMLDivElement>(null);
+  const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
 
   function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   const bot = async (input: string) => {
-    await sleep(1000);
+    setIsProcessing(true);
+    await sleep(1000)
     setMessages((prevMessages) => [
       ...prevMessages,
       { id: 0, text: "You said: " + input },
-    ]);
-  };
+    ])
+    setIsProcessing(false);
+  }
 
   const send = (input: string) => {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { id: 1, text: input },
-    ]);
-    bot(input);
-    setInput("");
-  };
+    if (isProcessing) {
+      return;
+    }
+    setMessages((prevMessages) => [...prevMessages, { id: 1, text: input }])
+    bot(input)
+    setInput("")
+  }
 
   React.useEffect(() => {
     setMessages([
@@ -76,18 +80,31 @@ export default function Chat({ name, age }: Props) {
     ])
   }, [])
 
+  React.useEffect(() => {
+    if (chatDivRef.current) {
+      chatDivRef.current.scrollTop = chatDivRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <>
       <div className="bg-white dark:bg-black w-[90vw] max-w-3xl rounded-xl p-1 border-gray-700 border drop-shadow-xl">
         <div className="flex flex-col">
           <div className="bg-white dark:bg-black rounded-t-lg p-2 border-gray-700 border flex flex-row justify-between items-center">
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-center">
+              <Avatar>
+                <AvatarImage
+                  src="https://avatars.githubusercontent.com/u/14957082?s=200&v=4"
+                  alt="@shadcn"
+                />
+                <AvatarFallback>AI</AvatarFallback>
+              </Avatar>
               <div className="font-semibold tracking-tight transition-colors">
                 Chat
               </div>
               <Badge
                 variant="secondary"
-                className="dark:bg-green-900 bg-green-200 bg-opacity-60"
+                className="dark:bg-green-900 bg-green-200 bg-opacity-60 ml-2"
               >
                 Connected
               </Badge>
@@ -96,7 +113,7 @@ export default function Chat({ name, age }: Props) {
               <ComboboxDemo></ComboboxDemo>
             </div>
           </div>
-          <div className="min-h-[600px] border-gray-700 border-b border-l border-r p-2">
+          <div ref={chatDivRef} className="h-[600px] border-gray-700 border-b border-l border-r p-2 overflow-y-scroll">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -108,7 +125,7 @@ export default function Chat({ name, age }: Props) {
                   className={`rounded-lg p-2 bg-gray-200 dark:bg-gray-800 ${
                     message.id === 0
                       ? "ml-2"
-                      : "mr-2 bg-blue-600 dark:bg-blue-600 text-white" 
+                      : "mr-2 bg-blue-700 dark:bg-blue-700 text-white"
                   }`}
                 >
                   <p className="text-sm">{message.text}</p>
@@ -123,12 +140,10 @@ export default function Chat({ name, age }: Props) {
               placeholder="Enter message"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={
-                (e) => e.key === "Enter" && send(input)
-              }
+              onKeyDown={(e) => e.key === "Enter" && send(input)}
             />
             <Button className="rounded-l-none flex gap-3" type="submit">
-              <Send onClick={()=>send(input)} ></Send>
+              <Send onClick={() => send(input)}></Send>
             </Button>
           </div>
         </div>

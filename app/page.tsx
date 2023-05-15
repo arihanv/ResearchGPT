@@ -1,6 +1,3 @@
-"use client"
-
-import { useState } from "react"
 import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
@@ -8,7 +5,6 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import Chat from "./chat/page"
 
 export default function IndexPage() {
-  const [count, setCount] = useState(0)
   return (
     <section className="container grid items-center gap-6 pt-6 pb-8 md:py-10 max-w-[1000px]">
       <div className="flex flex-col items-center justify-center gap-2">
@@ -36,9 +32,7 @@ export default function IndexPage() {
         >
           GitHub
         </Link>
-        <div className="flex items-center justify-center">{count}</div>
         <Button
-          onClick={() => setCount(count + 1)}
           className={buttonVariants({ variant: "outline", size: "lg" })}
         >
           Click Me
