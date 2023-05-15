@@ -27,18 +27,6 @@ const frameworks = [
     value: "text-davinci",
     label: "text-davinci",
   },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
 ]
 
 export function ComboboxDemo() {
@@ -63,7 +51,7 @@ export function ComboboxDemo() {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Search models..." />
           <CommandEmpty>No models found.</CommandEmpty>
           <CommandGroup>
             {frameworks.map((framework) => (

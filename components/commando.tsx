@@ -48,7 +48,7 @@ import React from "react"
 				<div className="flex flex-row justify-between h-10">
 					<div className="flex flex-row gap-2">
 						<SearchIcon className="w-4 h-4 my-auto" />
-						Search Compass...
+						Search...
 					</div>
 
 					<kbd className="hidden sm:block rounded bg-muted px-[0.4rem] py-[0.2rem] font-mono text-sm font-semibold">

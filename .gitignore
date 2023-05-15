@@ -32,5 +32,7 @@ yarn-error.log*
 # turbo
 .turbo
 
+app_secrets.py
+__pycache__
 .contentlayer
 .env

@@ -45,6 +45,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <SiteHeader />
               <div className="flex-1">{children}</div>
             </div>
+            {/* Remove this to delete the thing in the bottom left */}
             <TailwindIndicator />
           </ThemeProvider>
         </body>
