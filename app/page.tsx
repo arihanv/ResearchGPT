@@ -1,22 +1,25 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
-import { buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
+import Chat from "./chat/page"
 
 export default function IndexPage() {
+  const [count, setCount] = useState(0)
   return (
-    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-      <div className="flex max-w-[980px] flex-col items-start gap-2">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
-          Beautifully designed components <br className="hidden sm:inline" />
-          built with Radix UI and Tailwind CSS.
+    <section className="container grid items-center gap-6 pt-6 pb-8 md:py-10 max-w-[1000px]">
+      <div className="flex flex-col items-center justify-center gap-2">
+        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter text-center sm:text-3xl md:text-5xl lg:text-6xl">
+          Chat With GPT-3
         </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground sm:text-xl">
-          Accessible and customizable components that you can copy and paste
-          into your apps. Free. Open Source. And Next.js 13 Ready.
+        <p className="text-lg text-center text-muted-foreground sm:text-xl">
+          A clean UI to experiment with Open AI APIs
         </p>
       </div>
-      <div className="flex gap-4">
+      <div className="flex justify-center gap-4">
         <Link
           href={siteConfig.links.docs}
           target="_blank"
@@ -33,6 +36,16 @@ export default function IndexPage() {
         >
           GitHub
         </Link>
+        <div className="flex items-center justify-center">{count}</div>
+        <Button
+          onClick={() => setCount(count + 1)}
+          className={buttonVariants({ variant: "outline", size: "lg" })}
+        >
+          Click Me
+        </Button>
+      </div>
+      <div className="flex flex-col items-center justify-center gap-2">
+        <Chat name={"hello"} age={18}></Chat>
       </div>
     </section>
   )
