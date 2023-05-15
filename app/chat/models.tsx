@@ -43,7 +43,7 @@ const frameworks = [
 
 export function ComboboxDemo() {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+  const [value, setValue] = React.useState("chatgpt")
   
 
   return (
