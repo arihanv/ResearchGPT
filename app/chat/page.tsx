@@ -90,7 +90,7 @@ export default function Chat({ name, age }: Props) {
     <>
       <div className="bg-white dark:bg-black w-[90vw] max-w-3xl rounded-xl p-1 border-gray-700 border drop-shadow-xl">
         <div className="flex flex-col">
-          <div className="bg-white dark:bg-black rounded-t-lg p-2 border-gray-700 border flex flex-row justify-between items-center">
+          <div className="bg-white dark:bg-black rounded-t-lg p-2 border-gray-700 border flex flex-row justify-center sm:justify-between items-center flex-wrap gap-2">
             <div className="flex gap-3 items-center">
               <Avatar>
                 <AvatarImage
@@ -113,7 +113,7 @@ export default function Chat({ name, age }: Props) {
               <ComboboxDemo></ComboboxDemo>
             </div>
           </div>
-          <div ref={chatDivRef} className="h-[600px] border-gray-700 border-b border-l border-r p-2 overflow-y-scroll">
+          <div ref={chatDivRef} className="2xl:h-[600px] h-[500px] border-gray-700 border-b border-l border-r p-2 overflow-y-scroll">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -133,7 +133,7 @@ export default function Chat({ name, age }: Props) {
               </div>
             ))}
           </div>
-          <div className="bg-white dark:bg-black rounded-b-lg p-2 border-gray-700 border-b border-l border-r flex">
+          <div id="anchor" className="bg-white dark:bg-black rounded-b-lg p-2 border-gray-700 border-b border-l border-r flex">
             <Input
               className="rounded-r-none focus-visible:ring-0"
               type="text"
