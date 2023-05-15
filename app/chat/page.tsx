@@ -159,7 +159,7 @@ export default function Chat({ name, age }: Props) {
                       ? "ml-2"
                       : message.id === 0
                       ? "ml-2"
-                      : "mr-2 bg-blue-600 dark:bg-blue-600 text-white"
+                      : "mr-2 mesUser"
                   }`}
                 >
                   {message.id === 0 && index === messages.length - 1 ? (
