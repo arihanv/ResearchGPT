@@ -4,6 +4,15 @@ import { Search as SearchIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CommandDialog, CommandList } from "@/components/ui/command"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export function ApiFilter() {
   const [open, setOpen] = React.useState(false)
@@ -67,16 +76,26 @@ export function ApiFilter() {
         </div>
       </Button>
       <CommandDialog open={open} onOpenChange={() => handleOpen()}>
-        <div className="flex items-center px-3 border-b-[1px] gap-2">
-          <SearchIcon color="gray" size={20}></SearchIcon>
+        <div className="flex items-center px-3 border-b-[1px]">
+          <SearchIcon color="gray" size={30}></SearchIcon>
           <Input
-            className="placeholder:text-foreground-muted flex h-12 w-[80%] rounded-md bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-b-none border-0"
+            className="placeholder:text-foreground-muted flex h-12 w-[90%] rounded-md bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-b-none border-0"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search..."
           />
-          <div>hello</div>
+          <Select defaultValue="relevance">
+            <SelectTrigger className="w-[150px] mr-8">
+              <SelectValue placeholder="Sort By" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup className="text-left">
+                <SelectItem value="relevance">Relevance</SelectItem>
+                <SelectItem value="date">Pub Date</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         {results.length > 0 && (
           <CommandList>
