@@ -7,6 +7,7 @@ import { Bot } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ApiFilter } from "@/components/apiFilter"
+import Footer from "@/components/footer"
 
 import Chat from "./chat/page"
 import InfoBox from "./infoBox"
@@ -67,6 +68,7 @@ export default function IndexPage() {
           <Chat></Chat>
         </div>
       </div>
+      <Footer></Footer>
     </section>
   )
 }

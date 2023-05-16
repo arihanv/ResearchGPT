@@ -29,7 +29,7 @@ import React from "react"
    
     React.useEffect(() => {
       const down = (e: KeyboardEvent) => {
-        if (e.key === "k" && e.metaKey) {
+        if (e.key === "j" && e.metaKey) {
           setOpen((open) => !open)
         }
       }
@@ -52,7 +52,7 @@ import React from "react"
 					</div>
 
 					<kbd className="hidden sm:block rounded bg-muted px-[0.4rem] py-[0.2rem] font-mono text-sm font-semibold">
-						⌘ K
+						⌘ J
 					</kbd>
 				</div>
 			</Button>
