@@ -1,5 +1,7 @@
 import React from "react"
 
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type Props = {}
@@ -10,11 +12,7 @@ export default function InfoBox({}: Props) {
     update: "2021-08-01",
   }
 
-  const authors = {
-    0: "Michael",
-    1: "Mark",
-    2: "Damien",
-  }
+  const authors = ["Michael", "Mark", "Damien", "Damien", "Damien", "Damien"]
   return (
     <>
       <div className="bg-white dark:bg-black max-w-3xl rounded-xl p-1 border-gray-700 border drop-shadow-xl">
@@ -27,17 +25,32 @@ export default function InfoBox({}: Props) {
             </TabsList>
             <TabsContent value="quick" className="overflow-y-scroll h-[80%]">
               <div className="flex flex-col gap-2 p-1">
+                <div className="flex gap-4 items-center justify-start">
+                  <Badge className="w-fit text-xs overflow">
+                    Computer Science
+                  </Badge>
+                  <div className="tracking-tighter text-xs text-gray-500 flex flex-col ">
+                    <div>Pub Date: {date.pub}</div>
+                  </div>
+                  <div className="tracking-tighter text-xs text-gray-500 flex flex-col ">
+                    <div>Update: {date.update}</div>
+                  </div>
+                </div>
+                <Separator />
                 <h1 className="font-extrabold tracking-tighter sm:text-xl">
                   Semi-Supervised Semantic Segmentation With High- and Low-Level
                   Consistency
                 </h1>
-                <div className="grid grid-cols-2">
-                  <div className="tracking-tighter text-sm text-gray-500">
-                  Pub Date: {date.pub}
-                  </div>
-                  <div className="tracking-tighter text-sm text-gray-500">
-                  Update: {date.update}
-                  </div> 
+                <Separator />
+                <div className="flex flex-wrap gap-1">
+                  {authors.map((author) => (
+                    <Badge
+                      variant={"outline"}
+                      className="tracking-tighter text-sm text-gray-500"
+                    >
+                      {author}
+                    </Badge>
+                  ))}
                 </div>
               </div>
             </TabsContent>

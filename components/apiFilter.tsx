@@ -1,5 +1,5 @@
 import React from "react"
-import { Search as SearchIcon } from "lucide-react"
+import { Loader2, Search as SearchIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { CommandDialog, CommandList } from "@/components/ui/command"
@@ -19,6 +19,7 @@ export function ApiFilter() {
   const [input, setInput] = React.useState<string>("")
   const [example, setExample] = React.useState<string>("")
   const [results, setResults] = React.useState<string[]>([])
+  const [isProcessing, setIsProcessing] = React.useState<boolean>(false)
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -42,9 +43,22 @@ export function ApiFilter() {
     }
   }
 
-  const filter = (input: string) => {
-    setResults(["hello", "world", input])
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
+
+  const filter = async (input: string) => {
+    setIsProcessing(true)
+    await sleep(1000)
+    makeRequest(input)
+    setResults(["hello", "world", input])
+    setIsProcessing(false)
+  }
+
+  const makeRequest = async (input: string) => {
+    
+  }
+    
 
   function handleOpen() {
     if (open) {
@@ -97,19 +111,29 @@ export function ApiFilter() {
             </SelectContent>
           </Select>
         </div>
-        {results.length > 0 && (
-          <CommandList>
-            <div className="flex flex-col gap-1 p-2">
-              {results.map((result) => (
-                <div
-                  className="relative flex cursor-default select-none hover:bg-gray-100 items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 p-1"
-                  key={result}
-                >
-                  {result}
+        {!isProcessing ? (
+          <>
+            {results.length > 0 && (
+              <CommandList>
+                <div className="flex flex-col gap-1 p-2">
+                  {results.map((result) => (
+                    <div
+                      className="relative flex cursor-default select-none hover:bg-gray-100 items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 p-1"
+                      key={result}
+                    >
+                      {result}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </CommandList>
+            )}
+          </>
+        ) : (
+          <div className="flex justify-center m-4">
+            <div className="text-sm text-gray-500 animate-spin repeat-infinite">
+              <Loader2 />
             </div>
-          </CommandList>
+          </div>
         )}
       </CommandDialog>
     </>
