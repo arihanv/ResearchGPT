@@ -1,73 +1,98 @@
 "use client"
-import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
-import { Document, Page, pdfjs } from 'react-pdf';
-import '../styles/pdf.css';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+
+import React, { useEffect, useRef, useState } from "react"
+import axios from "axios"
+import { Document, Page, pdfjs } from "react-pdf"
+
+import "../styles/pdf.css"
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+
+import "react-pdf/dist/esm/Page/TextLayer.css"
+import "react-pdf/dist/esm/Page/AnnotationLayer.css"
+import { Input } from "@/components/ui/input"
 
 type Props = {
-  url: string;
+  url: string
 }
 
-const DispPDF = ({url} : Props) => {
-  const [pdfUrl, setPdfUrl] = useState(null);
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const pdfContRef = useRef(null);
+const DispPDF = ({ url }: Props) => {
+  const [pdfUrl, setPdfUrl] = useState(null)
+  const [numPages, setNumPages] = useState(null)
+  const [pageNumber, setPageNumber] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
+  const [input, setInput] = useState<string>(null)
+  const pdfContRef = useRef(null)
 
   useEffect(() => {
     setIsLoading(true)
     const fetchPDF = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/pdf?url='+ url, {
-          responseType: 'arraybuffer',
-        });
-        const pdfData = new Blob([response.data], { type: 'application/pdf' });
-        const pdfUrl = URL.createObjectURL(pdfData);
-        setPdfUrl(pdfUrl);
+        const response = await axios.get(
+          "http://localhost:8000/api/pdf?url=" + url,
+          {
+            responseType: "arraybuffer",
+          }
+        )
+        const pdfData = new Blob([response.data], { type: "application/pdf" })
+        const pdfUrl = URL.createObjectURL(pdfData)
+        setPdfUrl(pdfUrl)
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchPDF();
-  }, [url]);
+    fetchPDF()
+  }, [url])
 
   useEffect(() => {
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-  }, []);
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
+  }, [])
 
   const onDocumentLoadSuccess = ({ numPages }) => {
-    setNumPages(numPages);
-    setPageNumber(1); // Reset the page number when a new document is loaded
-  };
+    setNumPages(numPages)
+    setPageNumber(1) // Reset the page number when a new document is loaded
+    setInput("1")
+  }
 
   const handlePreviousPage = () => {
     if (pageNumber > 1) {
-      setPageNumber(pageNumber - 1);
+      setPageNumber(pageNumber - 1)
+      setInput((prevInput) => (parseInt(prevInput) - 1).toString())
     }
-  };
+  }
 
   const handleNextPage = () => {
     if (pageNumber < numPages) {
-      setPageNumber(pageNumber + 1);
+      setPageNumber(pageNumber + 1)
+      setInput((prevInput) => (parseInt(prevInput) + 1).toString())
     }
-  };
+  }
+
+  const handleSkip = (input: string) => {
+    if (input === "") {
+      setInput(pageNumber.toString())
+    } else if (parseInt(input) > numPages) {
+      setInput(numPages.toString())
+      setPageNumber(numPages)
+    } else if (parseInt(input) < 1) {
+      setInput("1")
+      setPageNumber(1)
+    } else {
+      setPageNumber(parseInt(input))
+    }
+  }
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (pdfContRef.current && document.activeElement === pdfContRef.current) {
-        if (e.key === 'ArrowRight') {
-          setPageNumber((prevPageNumber) => prevPageNumber + 1);
-          console.log('right');
+        if (e.key === "ArrowRight") {
+          setPageNumber((prevPageNumber) => prevPageNumber + 1)
+          console.log("right")
         }
-        if (e.key === 'ArrowLeft') {
-          handlePreviousPage();
+        if (e.key === "ArrowLeft") {
+          handlePreviousPage()
         }
       }
     }
@@ -76,34 +101,51 @@ const DispPDF = ({url} : Props) => {
   }, [pageNumber])
 
   return (
-    <div id="pdfCont" ref={pdfContRef} className='h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900 focus:bg-red-500'>
+    <div
+      id="pdfCont"
+      ref={pdfContRef}
+      className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900 focus:bg-red-500"
+    >
       {isLoading ? (
-        <div className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900 flex justify-center items-center"> <div className="text-gray-400 dark:text-gray-600 animate-spin repeat-infinite">
-        <Loader2 size={30} />
-      </div></div>
+        <div className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900 flex justify-center items-center">
+          {" "}
+          <div className="text-gray-400 dark:text-gray-600 animate-spin repeat-infinite">
+            <Loader2 size={30} />
+          </div>
+        </div>
       ) : (
-        <div className='pdfContainer rounded-lg'>
-          <Document className="dark:invert" style={{textAlign: 'center'}}
+        <div className="pdfContainer rounded-lg">
+          <Document
+            className="dark:invert"
+            style={{ textAlign: "center" }}
             file={pdfUrl}
             onLoadSuccess={onDocumentLoadSuccess}
           >
-            <Page pageNumber={pageNumber} height={900} width={695}/>
+            <Page pageNumber={pageNumber} height={900} width={695} />
           </Document>
-          <div className='flex justify-center absolute dark:bg-gray-800 bg-white p-1.5 rounded-xl mt-1 shadow-md' >
+          <div className="flex justify-center absolute dark:bg-gray-800 bg-white p-1.5 rounded-xl mt-1 shadow-md">
             <button onClick={handlePreviousPage} disabled={pageNumber === 1}>
-              <ChevronLeft/>
+              <ChevronLeft className={pageNumber === 1 ? "text-gray-300" : ""}/>
             </button>
-            <span className='mx-2'>
-              Page {pageNumber} / {numPages}
+            <span className="mx-2 flex items-center">
+              Page{" "}
+              <Input
+                className="focus-visible:ring-0 w-11 ml-2 mr-0.5 h-7"
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSkip(input)}
+              />{" "}
+              / {numPages}
             </span>
             <button onClick={handleNextPage} disabled={pageNumber === numPages}>
-              <ChevronRight/>
+              <ChevronRight className={pageNumber === numPages ? "text-gray-300" : ""} />
             </button>
           </div>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default DispPDF;
+export default DispPDF
