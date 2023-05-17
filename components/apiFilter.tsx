@@ -142,23 +142,30 @@ export function ApiFilter({setData}: Props) {
             </Select>
           </div>
           {!isProcessing ? (
-            <>
-              {results.length > 0 && (
-                <CommandList>
-                  <div className="flex flex-col gap-1 p-2">
-                    {results.map((result, index) => (
-                      <div
-                        onClick={() => handleSelect([result])}
-                        className="relative flex cursor-default select-none hover:bg-gray-200 dark:hover:bg-gray-800 items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 p-1"
-                        key={index}
-                      >
-                        {result.title}
-                      </div>
-                    ))}
-                  </div>
-                </CommandList>
-              )}
-            </>
+           <>
+           {results.length > 0 ? (
+             <CommandList>
+               <div className="flex flex-col gap-1 p-2">
+                 {results.map((result, index) => (
+                   <div
+                     onClick={() => handleSelect([result])}
+                     className="relative flex select-none cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 p-1"
+                     key={index}
+                   >
+                     {result.title}
+                   </div>
+                 ))}
+               </div>
+             </CommandList>
+           ) : results.includes("none") && (
+             <div className="flex justify-center m-4">
+               <div className="text-sm text-gray-500">
+                 No Results Found
+               </div>
+             </div>
+           )}
+         </>
+         
           ) : (
             <div className="flex justify-center m-4">
               <div className="text-sm text-gray-500 animate-spin repeat-infinite">

@@ -4,11 +4,13 @@ from pydantic import BaseModel
 from langchain import OpenAI
 import arxiv
 from langchain import PromptTemplate
-# from trapy import Trapy
+from fastapi.responses import StreamingResponse
+import requests
 import json
 import time
 import asyncio
 import os
+import re
 import app_secrets
 
 
@@ -39,16 +41,38 @@ def gpt(prompt: Message):
 
 @app.post("/search")
 def gpt(query: Message):
-    search = arxiv.Search(
-        query = query.query,
-        max_results = 5,
-        sort_by = arxiv.SortCriterion.Relevance
-    )
-    res = []
-    for result in search.results():
-        res.append(result.__dict__)
-    return res
-
+    try:
+        if query.query[0:22] == "https://arxiv.org/pdf/":
+            pattern = r"\d{4}\.\d{5}"
+            match = re.search(pattern, query.query)
+            if match:
+                query.query = match.group(0)
+            else:
+                return ["None"]
+        if len(query.query) == 10 and query.query[4] == '.':
+            search = arxiv.Search(id_list=[query.query])
+        else:
+            search = arxiv.Search(
+                query = query.query,
+                max_results = 5,
+                sort_by = arxiv.SortCriterion.Relevance
+            )
+        res = []
+        for result in search.results():
+            res.append(result.__dict__)
+        if len(res) == 0:
+            return ["none"]
+        else: 
+            return res
+    
+    except Exception as e:
+        print(e)
+        return ["none"]
+    
+@app.get("/api/pdf")
+async def get_pdf(url: str):
+    response = requests.get(url, stream=True)
+    return StreamingResponse(response.iter_content(chunk_size=1024), media_type="application/pdf")
 
 if __name__ == "__main__":
     import uvicorn

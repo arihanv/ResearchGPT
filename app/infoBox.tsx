@@ -15,7 +15,7 @@ export default function InfoBox({ data }: Props) {
   }
 
   React.useEffect(() => {
-    console.log(data.published)
+    console.log(typeof(data.pdf_url))
   }, [data])
 
   const authors = ["Michael", "Mark", "Damien", "Damien", "Damien", "Damien"]
@@ -49,7 +49,7 @@ export default function InfoBox({ data }: Props) {
                   </div>
                 </div>
                 <Separator />
-                <h1 className="font-extrabold tracking-tighter sm:text-xl cursor-pointer" onClick={() => window.open(data.pdf_url, '_blank')}>
+                <h1 className="font-extrabold tracking-tighter sm:text-xl cursor-pointer w-fit" onClick={() => window.open(data.pdf_url, '_blank')}>
                   {data.title}
                 </h1>
                 <Separator />
@@ -57,8 +57,9 @@ export default function InfoBox({ data }: Props) {
                   {Object.entries(data.authors).map(([index, author]) => (
                     <Badge
                       key={index}
+                      onClick={() => window.open(`https://scholar.google.com/scholar?hl=en&as_sdt=0%2C44&q=${author.name.toLowerCase().replace(/\s+/g, "%20")}`, '_blank')}
                       variant={"outline"}
-                      className="tracking-tighter text-sm text-gray-500"
+                      className="tracking-tighter text-sm text-gray-500 cursor-pointer"
                     >
                       {author.name}
                     </Badge>
