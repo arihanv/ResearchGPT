@@ -4,13 +4,19 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-type Props = {}
+type Props = {
+  data: Record<string, any>
+}
 
-export default function InfoBox({}: Props) {
+export default function InfoBox({ data }: Props) {
   const date = {
-    pub: "2021-08-01",
+    published: "2021-08-01",
     update: "2021-08-01",
   }
+
+  React.useEffect(() => {
+    console.log(data.published)
+  }, [data])
 
   const authors = ["Michael", "Mark", "Damien", "Damien", "Damien", "Damien"]
   return (
@@ -26,30 +32,35 @@ export default function InfoBox({}: Props) {
             <TabsContent value="quick" className="overflow-y-scroll h-[80%]">
               <div className="flex flex-col gap-2 p-1">
                 <div className="flex gap-4 items-center justify-start">
-                  <Badge className="w-fit text-xs overflow">
+                  <Badge className="w-fit text-xs overflow dark:hover:bg-white hover:bg-black">
                     Computer Science
                   </Badge>
                   <div className="tracking-tighter text-xs text-gray-500 flex flex-col ">
-                    <div>Pub Date: {date.pub}</div>
+                    <div>
+                      Pub Date:{" "}
+                      {new Date(data.published).toISOString().split("T")[0]}
+                    </div>
                   </div>
                   <div className="tracking-tighter text-xs text-gray-500 flex flex-col ">
-                    <div>Update: {date.update}</div>
+                    <div>
+                      Update:{" "}
+                      {new Date(data.updated).toISOString().split("T")[0]}
+                    </div>
                   </div>
                 </div>
                 <Separator />
-                <h1 className="font-extrabold tracking-tighter sm:text-xl">
-                  Semi-Supervised Semantic Segmentation With High- and Low-Level
-                  Consistency
+                <h1 className="font-extrabold tracking-tighter sm:text-xl cursor-pointer" onClick={() => window.open(data.pdf_url, '_blank')}>
+                  {data.title}
                 </h1>
                 <Separator />
                 <div className="flex flex-wrap gap-1">
-                  {authors.map((author, index) => (
+                  {Object.entries(data.authors).map(([index, author]) => (
                     <Badge
                       key={index}
                       variant={"outline"}
                       className="tracking-tighter text-sm text-gray-500"
                     >
-                      {author}
+                      {author.name}
                     </Badge>
                   ))}
                 </div>
@@ -57,19 +68,7 @@ export default function InfoBox({}: Props) {
             </TabsContent>
             <TabsContent value="summary" className="overflow-y-scroll h-[80%]">
               <div className="flex flex-col gap-2 p-1 text-sm">
-                Make changes to your account here. Find definitions and
-                references for functions and other symbols in this file by
-                clicking a symbol below or in the code.Find definitions and
-                references for functions and other symbols in this file by
-                clicking a symbol beloFind definitions and references for
-                functions and other symbols in this file by clicking a symbol
-                below or in the code.Find definitions and references for
-                functions and other symbols in this file by clicking a symbol
-                below or in the code.Find definitions and references for
-                functions and other symbols in this file by clicking a symbol
-                below or in the code.Find definitions and references for
-                functions and other symbols in this file by clicking a symbol
-                below or in the code.w or in the code.
+                {data.summary}
               </div>
             </TabsContent>
           </Tabs>

@@ -42,10 +42,6 @@ export default function Chat({}: Props) {
   const [completedTyping, setCompletedTyping] = React.useState(false)
   const [displayResponse, setDisplayResponse] = React.useState("")
 
-  function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
-  }
-
   const bot = async (input: string) => {
     setIsProcessing(true)
     const data = await getData(input)
@@ -110,7 +106,7 @@ export default function Chat({}: Props) {
     if (chatDivRef.current) {
       chatDivRef.current.scrollTop = chatDivRef.current.scrollHeight
     }
-  }, [messages])
+  }, [messages, displayResponse])
 
   return (
     <>
@@ -161,7 +157,6 @@ export default function Chat({}: Props) {
                 >
                   {message.id === 0 && index === messages.length - 1 ? (
                     <div className="!text-sm">
-                      {/* {message} */}
                       {displayResponse}
                       {!completedTyping && (
                         <svg
@@ -186,7 +181,7 @@ export default function Chat({}: Props) {
               </div>
             ))}
             {isProcessing && (
-              <div className="flex justify-center mb-2">
+              <div className="flex justify-center my-2.5">
                 <div className="text-sm text-gray-500 animate-spin repeat-infinite">
                   <Loader2 />
                 </div>

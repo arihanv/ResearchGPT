@@ -20,7 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-export function ApiFilter() {
+type Props = {
+  setData: React.Dispatch<React.SetStateAction<any[]>>
+}
+
+export function ApiFilter({setData}: Props) {
   const [open, setOpen] = React.useState(false)
   const [input, setInput] = React.useState<string>("")
   const [example, setExample] = React.useState<string>("")
@@ -78,6 +82,11 @@ export function ApiFilter() {
     console.log(data)
     // setResults(["hello", "world", input])
     setIsProcessing(false)
+  }
+
+  function handleSelect(data: any[]){
+    setData(data)
+    setOpen(false)
   }
 
   function handleOpen() {
@@ -139,6 +148,7 @@ export function ApiFilter() {
                   <div className="flex flex-col gap-1 p-2">
                     {results.map((result, index) => (
                       <div
+                        onClick={() => handleSelect([result])}
                         className="relative flex cursor-default select-none hover:bg-gray-200 dark:hover:bg-gray-800 items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 p-1"
                         key={index}
                       >
@@ -169,7 +179,7 @@ export function ApiFilter() {
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Search</h4>
                 <p className="text-sm text-muted-foreground">
-                 Change the default search settings
+                  Change the default search settings
                 </p>
               </div>
               <div className="grid gap-2">
@@ -182,28 +192,32 @@ export function ApiFilter() {
                   />
                 </div>
                 <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="maxWidth">Max. width</Label>
-                  <Input
-                    id="maxWidth"
-                    defaultValue="300px"
-                    className="col-span-2 h-8"
-                  />
+                  <Label htmlFor="width">Database</Label>
+                  <Select defaultValue="arvix">
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue placeholder="Sort By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup className="text-left">
+                        <SelectItem value="arvix">Arvix</SelectItem>
+                        <SelectItem value="pubmed">Pubmed</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="height">Height</Label>
-                  <Input
-                    id="height"
-                    defaultValue="25px"
-                    className="col-span-2 h-8"
-                  />
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="maxHeight">Max. height</Label>
-                  <Input
-                    id="maxHeight"
-                    defaultValue="none"
-                    className="col-span-2 h-8"
-                  />
+                  <Label htmlFor="width">Search By</Label>
+                  <Select defaultValue="relevance">
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue placeholder="Sort By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup className="text-left">
+                        <SelectItem value="relevance">Relevance</SelectItem>
+                        <SelectItem value="date">Pub Date</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

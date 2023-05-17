@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Bot } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -9,12 +9,24 @@ import { ApiFilter } from "@/components/apiFilter"
 import Footer from "@/components/footer"
 import Chat from "./chat/page"
 import InfoBox from "./infoBox"
+import example from "@/public/example.json"
 
 export default function IndexPage() {
   const [input, setInput] = useState<string>("")
+  const [data, setData] = useState<any[]>([])
   const send = (input: string) => {
     console.log(input)
   }
+
+  useEffect(() => {
+    console.log(data)
+  }, [data])
+
+  useEffect(() => {
+    console.log(example)
+    setData([example])
+  }, [])
+
   return (
     <section className="grid items-center gap-6 pt-6 pb-8 md:py-10 max-w-[1200px] m-auto">
       <div className="flex flex-col items-center justify-center gap-2">
@@ -36,7 +48,7 @@ export default function IndexPage() {
       </div>
       <div className="grid grid-cols-[1.25fr,1fr] items-center justify-center gap-8">
         <div className="flex flex-col h-full w-full gap-3">
-        <ApiFilter></ApiFilter>
+        <ApiFilter setData={setData}></ApiFilter>
         <div className="bg-white dark:bg-black max-w-3xl rounded-xl p-1 border-gray-700 border drop-shadow-xl h-full w-full">
           <div className="bg-white dark:bg-black rounded-lg p-2 border-gray-700 border gap-2 h-full">
             s
@@ -62,8 +74,12 @@ export default function IndexPage() {
             </Button>
           </div>
           </div>
-          <InfoBox />
+          { data.length > 0 && (<>
+          <InfoBox data={data[0]} />
           <Chat></Chat>
+          </>
+          )
+        }
         </div>
       </div>
       <Footer></Footer>
