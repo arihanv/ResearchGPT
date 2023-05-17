@@ -3,12 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Bot } from "lucide-react"
-
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ApiFilter } from "@/components/apiFilter"
 import Footer from "@/components/footer"
-
 import Chat from "./chat/page"
 import InfoBox from "./infoBox"
 

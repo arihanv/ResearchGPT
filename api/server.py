@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain import OpenAI
+import arxiv
 from langchain import PromptTemplate
 # from trapy import Trapy
 import json
@@ -14,8 +15,6 @@ import app_secrets
 origins = [
     "http://localhost:3000",
     "localhost:3000",
-    "http://localhost:3001",
-    "localhost:3001",
 ]
 
 app = FastAPI()
@@ -30,13 +29,26 @@ app.add_middleware(
 llm = OpenAI(model_name="gpt-3.5-turbo", temperature=0, openai_api_key=app_secrets.OPEN_AI_KEY)
 
 class Message(BaseModel):
-    prompt: str
+    query: str
 
 @app.post("/gpt")
-def gpt(message: Message):
+def gpt(prompt: Message):
     global llm
-    res = llm(message.prompt)
+    res = llm(prompt.query)
     return res
+
+@app.post("/search")
+def gpt(query: Message):
+    search = arxiv.Search(
+        query = query.query,
+        max_results = 5,
+        sort_by = arxiv.SortCriterion.Relevance
+    )
+    res = []
+    for result in search.results():
+        res.append(result.__dict__)
+    return res
+
 
 if __name__ == "__main__":
     import uvicorn

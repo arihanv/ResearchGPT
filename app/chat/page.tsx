@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Send, Loader2 } from "lucide-react"
+import { Loader2, Send } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -10,21 +10,20 @@ import { Input } from "@/components/ui/input"
 
 import { ComboboxDemo } from "./models"
 
-type Props = {
-}
+type Props = {}
 
 type Message = {
   id: number
   text: string
 }
 
-async function getData(prompt: string) {
+async function getData(query: string) {
   const res = await fetch("http://localhost:8000/gpt", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ query }),
   })
 
   if (!res.ok) {
@@ -185,13 +184,14 @@ export default function Chat({}: Props) {
                   )}
                 </div>
               </div>
-              
             ))}
-             {isProcessing && (
-            <div className="flex justify-center mb-2">
-              <div className="text-sm text-gray-500 animate-spin repeat-infinite"><Loader2/></div>
-            </div>
-          )}
+            {isProcessing && (
+              <div className="flex justify-center mb-2">
+                <div className="text-sm text-gray-500 animate-spin repeat-infinite">
+                  <Loader2 />
+                </div>
+              </div>
+            )}
           </div>
           <div
             id="anchor"

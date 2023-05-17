@@ -43,8 +43,9 @@ export default function InfoBox({}: Props) {
                 </h1>
                 <Separator />
                 <div className="flex flex-wrap gap-1">
-                  {authors.map((author) => (
+                  {authors.map((author, index) => (
                     <Badge
+                      key={index}
                       variant={"outline"}
                       className="tracking-tighter text-sm text-gray-500"
                     >
