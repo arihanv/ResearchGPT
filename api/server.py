@@ -5,6 +5,7 @@ from langchain import OpenAI
 import arxiv
 from langchain import PromptTemplate
 from fastapi.responses import StreamingResponse
+import fitz
 import requests
 import json
 import time
@@ -12,6 +13,16 @@ import asyncio
 import os
 import re
 import app_secrets
+from langchain.document_loaders import TextLoader
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores import FAISS
+from langchain.document_loaders import TextLoader
+from langchain.document_loaders import PyMuPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import PyMuPDFLoader
+from fastapi import FastAPI, BackgroundTasks
+from langchain.embeddings import HuggingFaceEmbeddings
 
 
 origins = [
@@ -69,10 +80,57 @@ def gpt(query: Message):
         print(e)
         return ["none"]
     
+# @app.get("/api/pdf")
+# async def get_pdf(url: str):
+#     response = requests.get(url, stream=True)
+#     return StreamingResponse(response.iter_content(chunk_size=1024), media_type="application/pdf")
+db = None
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
+
+def download_pdf(url: str):
+    global db
+    data = PyMuPDFLoader(url).load()
+    docs = text_splitter.split_documents(data)
+    embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
+    db = FAISS.from_documents(docs, embeddings)
+    print("Indexed")
+
 @app.get("/api/pdf")
-async def get_pdf(url: str):
+async def get_pdf(url: str, background_tasks: BackgroundTasks):
+    # background_tasks.add_task(download_pdf, url)
     response = requests.get(url, stream=True)
     return StreamingResponse(response.iter_content(chunk_size=1024), media_type="application/pdf")
+
+
+pdf_content = None  # Global variable to store the PDF content
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
+
+
+# @app.get("/api/pdfs")
+# async def get_pdf(url: str):
+#     global pdf_content  # Access the global variable
+
+#     response = requests.get(url, stream=True)
+#     pdf_content = b""  # Initialize the variable
+
+#     for chunk in response.iter_content(chunk_size=1024):
+#         pdf_content += chunk
+
+#     return StreamingResponse(iter([pdf_content]), media_type="application/pdf")
+
+@app.get("/index")
+def index():
+    global db
+    # loader = PyMuPDFLoader('./files/test.pdf')
+    # data = loader.load()
+    # text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
+    # docs = text_splitter.split_documents(data)
+    # embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
+    # db = FAISS.from_documents(docs, embeddings)
+    if db is None:
+        return "Not Indexed"
+    return "Indexed"
+
 
 if __name__ == "__main__":
     import uvicorn

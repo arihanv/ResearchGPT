@@ -12,6 +12,7 @@
     "react/jsx-key": "off",
     "tailwindcss/no-custom-classname": "off"
   },
+  
   "settings": {
     "tailwindcss": {
       "callees": ["cn"],

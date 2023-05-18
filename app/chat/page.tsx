@@ -110,10 +110,10 @@ export default function Chat({}: Props) {
 
   return (
     <>
-      <div className="bg-white dark:bg-black max-w-3xl rounded-xl p-1 border-gray-700 border drop-shadow-xl">
+      <div className="max-w-3xl rounded-xl border border-gray-700 bg-white p-1 drop-shadow-xl dark:bg-black">
         <div className="flex flex-col">
-          <div className="bg-white dark:bg-black rounded-t-lg p-2 border-gray-700 border flex flex-row justify-center sm:justify-between items-center flex-wrap gap-2">
-            <div className="flex gap-3 items-center">
+          <div className="flex flex-row flex-wrap items-center justify-center gap-2 rounded-t-lg border border-gray-700 bg-white p-2 dark:bg-black sm:justify-between">
+            <div className="flex items-center gap-3">
               <Avatar>
                 <AvatarImage
                   src="https://avatars.githubusercontent.com/u/14957082?s=200&v=4"
@@ -126,7 +126,7 @@ export default function Chat({}: Props) {
               </div>
               <Badge
                 variant="secondary"
-                className="dark:bg-green-900 bg-green-200 bg-opacity-60 ml-2"
+                className="ml-2 bg-green-200 bg-opacity-[0.6] dark:bg-green-900"
               >
                 Connected
               </Badge>
@@ -137,7 +137,7 @@ export default function Chat({}: Props) {
           </div>
           <div
             ref={chatDivRef}
-            className="h-[300px] border-gray-700 border-b border-l border-r p-2 overflow-y-scroll"
+            className="h-[300px] overflow-y-scroll border-x border-b border-gray-700 p-2"
           >
             {messages.map((message, index) => (
               <div
@@ -147,12 +147,12 @@ export default function Chat({}: Props) {
                 } mb-2`}
               >
                 <div
-                  className={`rounded-lg p-2 bg-gray-200 dark:bg-gray-800 max-w-[80%] ${
+                  className={`max-w-[80%] rounded-lg bg-gray-200 p-2 dark:bg-gray-800 ${
                     message.id === 0 && index === messages.length - 1
                       ? "ml-2"
                       : message.id === 0
                       ? "ml-2"
-                      : "mr-2 mesUser"
+                      : "mesUser mr-2"
                   }`}
                 >
                   {message.id === 0 && index === messages.length - 1 ? (
@@ -181,8 +181,8 @@ export default function Chat({}: Props) {
               </div>
             ))}
             {isProcessing && (
-              <div className="flex justify-center my-2.5">
-                <div className="text-sm text-gray-500 animate-spin repeat-infinite">
+              <div className="my-2.5 flex justify-center">
+                <div className="animate-spin text-sm text-gray-500 repeat-infinite">
                   <Loader2 />
                 </div>
               </div>
@@ -190,7 +190,7 @@ export default function Chat({}: Props) {
           </div>
           <div
             id="anchor"
-            className="bg-white dark:bg-black rounded-b-lg p-2 border-gray-700 border-b border-l border-r flex"
+            className="flex rounded-b-lg border-x border-b border-gray-700 bg-white p-2 dark:bg-black"
           >
             <Input
               className="rounded-r-none focus-visible:ring-0"
@@ -200,7 +200,7 @@ export default function Chat({}: Props) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send(input)}
             />
-            <Button className="rounded-l-none flex gap-3" type="submit">
+            <Button className="flex gap-3 rounded-l-none" type="submit">
               <Send onClick={() => send(input)}></Send>
             </Button>
           </div>

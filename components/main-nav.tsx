@@ -14,7 +14,7 @@ interface MainNavProps {
 export function MainNav({ items }: MainNavProps) {
   return (
     <div className="flex gap-6 md:gap-10">
-      <Link href="/" className="items-center hidden space-x-2 md:flex">
+      <Link href="/" className="hidden items-center space-x-2 md:flex">
         <Avatar>
           <AvatarImage
             src="https://avatars.githubusercontent.com/u/63890951?v=4"

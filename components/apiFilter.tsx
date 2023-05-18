@@ -24,7 +24,7 @@ type Props = {
   setData: React.Dispatch<React.SetStateAction<any[]>>
 }
 
-export function ApiFilter({setData}: Props) {
+export function ApiFilter({ setData }: Props) {
   const [open, setOpen] = React.useState(false)
   const [input, setInput] = React.useState<string>("")
   const [example, setExample] = React.useState<string>("")
@@ -84,7 +84,7 @@ export function ApiFilter({setData}: Props) {
     setIsProcessing(false)
   }
 
-  function handleSelect(data: any[]){
+  function handleSelect(data: any[]) {
     setData(data)
     setOpen(false)
   }
@@ -108,29 +108,29 @@ export function ApiFilter({setData}: Props) {
           onClick={() => setOpen(true)}
           className="w-full pl-4 pr-2 md:w-80"
         >
-          <div className="flex flex-row justify-between h-10">
+          <div className="flex h-10 flex-row justify-between">
             <div className="flex flex-row gap-2">
-              <SearchIcon className="w-4 h-4 my-auto" />
+              <SearchIcon className="my-auto h-4 w-4" />
               Search...
             </div>
 
-            <kbd className="hidden sm:block rounded bg-muted px-[0.4rem] py-[0.2rem] font-mono text-sm font-semibold">
+            <kbd className="hidden rounded bg-muted px-[0.4rem] py-[0.2rem] font-mono text-sm font-semibold sm:block">
               ⌘ K
             </kbd>
           </div>
         </Button>
         <CommandDialog open={open} onOpenChange={() => handleOpen()}>
-          <div className="flex items-center px-3 border-b-[1px]">
+          <div className="flex items-center border-b-[1px] px-3">
             <SearchIcon color="gray" size={30}></SearchIcon>
             <Input
-              className="placeholder:text-foreground-muted flex h-12 w-[90%] rounded-md bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-b-none border-0"
+              className="placeholder:text-foreground-muted flex h-12 w-[90%] rounded-md rounded-b-none border-0 bg-transparent text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type a command or search..."
             />
             <Select defaultValue="relevance">
-              <SelectTrigger className="w-[150px] mr-8">
+              <SelectTrigger className="mr-8 w-[150px]">
                 <SelectValue placeholder="Sort By" />
               </SelectTrigger>
               <SelectContent>
@@ -142,33 +142,35 @@ export function ApiFilter({setData}: Props) {
             </Select>
           </div>
           {!isProcessing ? (
-           <>
-           {results.length > 0 ? (
-             <CommandList>
-               <div className="flex flex-col gap-1 p-2">
-                 {results.map((result, index) => (
-                   <div
-                     onClick={() => handleSelect([result])}
-                     className="relative flex select-none cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 p-1"
-                     key={index}
-                   >
-                     {result.title}
-                   </div>
-                 ))}
-               </div>
-             </CommandList>
-           ) : results.includes("none") && (
-             <div className="flex justify-center m-4">
-               <div className="text-sm text-gray-500">
-                 No Results Found
-               </div>
-             </div>
-           )}
-         </>
-         
+            <>
+              {results.length > 0 ? (
+                <CommandList>
+                  <div className="flex flex-col gap-1 p-2">
+                    {results.map((result, index) => (
+                      <div
+                        onClick={() => handleSelect([result])}
+                        className="relative flex cursor-pointer select-none items-center rounded-sm p-1 px-2 py-1.5 text-sm outline-none hover:bg-gray-200 aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:hover:bg-gray-800"
+                        key={index}
+                      >
+                        {/*@ts-ignore*/}
+                        {result.title}
+                      </div>
+                    ))}
+                  </div>
+                </CommandList>
+              ) : (
+                results.includes("none") && (
+                  <div className="m-4 flex justify-center">
+                    <div className="text-sm text-gray-500">
+                      No Results Found
+                    </div>
+                  </div>
+                )
+              )}
+            </>
           ) : (
-            <div className="flex justify-center m-4">
-              <div className="text-sm text-gray-500 animate-spin repeat-infinite">
+            <div className="m-4 flex justify-center">
+              <div className="animate-spin text-sm text-gray-500 repeat-infinite">
                 <Loader2 />
               </div>
             </div>

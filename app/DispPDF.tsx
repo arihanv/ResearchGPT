@@ -1,6 +1,8 @@
+// @ts-nocheck
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
+import dynamic from "next/dynamic"
 import axios from "axios"
 import { Document, Page, pdfjs } from "react-pdf"
 
@@ -104,12 +106,12 @@ const DispPDF = ({ url }: Props) => {
     <div
       id="pdfCont"
       ref={pdfContRef}
-      className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900 focus:bg-red-500"
+      className="h-[900px] w-[695px] bg-gray-100 focus:bg-red-500 dark:bg-gray-900"
     >
       {isLoading ? (
-        <div className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900 flex justify-center items-center">
+        <div className="flex h-[900px] w-[695px] items-center justify-center bg-gray-100 dark:bg-gray-900">
           {" "}
-          <div className="text-gray-400 dark:text-gray-600 animate-spin repeat-infinite">
+          <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
             <Loader2 size={30} />
           </div>
         </div>
@@ -123,14 +125,16 @@ const DispPDF = ({ url }: Props) => {
           >
             <Page pageNumber={pageNumber} height={900} width={695} />
           </Document>
-          <div className="flex justify-center absolute dark:bg-gray-800 bg-white p-1.5 rounded-xl mt-1 shadow-md">
+          <div className="absolute mt-1 flex justify-center rounded-xl bg-white p-1.5 shadow-md dark:bg-gray-800">
             <button onClick={handlePreviousPage} disabled={pageNumber === 1}>
-              <ChevronLeft className={pageNumber === 1 ? "text-gray-300" : ""}/>
+              <ChevronLeft
+                className={pageNumber === 1 ? "text-gray-300" : ""}
+              />
             </button>
             <span className="mx-2 flex items-center">
               Page{" "}
               <Input
-                className="focus-visible:ring-0 w-11 ml-2 mr-0.5 h-7"
+                className="ml-2 mr-0.5 h-7 w-11 focus-visible:ring-0"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -139,7 +143,9 @@ const DispPDF = ({ url }: Props) => {
               / {numPages}
             </span>
             <button onClick={handleNextPage} disabled={pageNumber === numPages}>
-              <ChevronRight className={pageNumber === numPages ? "text-gray-300" : ""} />
+              <ChevronRight
+                className={pageNumber === numPages ? "text-gray-300" : ""}
+              />
             </button>
           </div>
         </div>
@@ -148,4 +154,6 @@ const DispPDF = ({ url }: Props) => {
   )
 }
 
-export default DispPDF
+export default dynamic(() => Promise.resolve(DispPDF), {
+  ssr: false,
+})
