@@ -2,11 +2,11 @@
 
 import React from "react"
 import { Loader2, Send } from "lucide-react"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { OpenAI } from "langchain/llms/openai";
 
 import { ComboboxDemo } from "./models"
 
@@ -17,22 +17,16 @@ type Message = {
   text: string
 }
 
-async function getData(query: string) {
-  const res = await fetch("http://localhost:8000/gpt", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-  })
+const model = new OpenAI({
+  modelName: "gpt-3.5-turbo",
+  temperature: 0.5,
+  openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
+});
 
-  if (!res.ok) {
-    console.error(await res.json())
-    throw new Error("Failed to fetch data")
-  }
-
-  return res.json()
-}
+// async function getData(query: string) {
+//   const res = await model.call(query);
+//   return res
+// }
 
 export default function Chat({}: Props) {
   const [messages, setMessages] = React.useState<Message[]>([])
@@ -44,7 +38,7 @@ export default function Chat({}: Props) {
 
   const bot = async (input: string) => {
     setIsProcessing(true)
-    const data = await getData(input)
+    const data =  await model.call(input);
     console.log(data)
     setMessages((prevMessages) => [...prevMessages, { id: 0, text: data }])
     setIsProcessing(false)

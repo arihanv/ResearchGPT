@@ -30,7 +30,7 @@ export default function IndexPage() {
   }
 
   useEffect(() => {
-    // run()
+    console.log(run())
     console.log(example)
     setData([example])
   }, [])
@@ -83,7 +83,7 @@ export default function IndexPage() {
             <div className="h-full w-full max-w-3xl rounded-xl border border-gray-700 bg-white p-1 drop-shadow-xl dark:bg-black">
               <div className="h-full max-w-fit gap-2 rounded-lg border border-gray-700 bg-white dark:bg-black">
                 {/*@ts-ignore*/}
-                <DispPDF url={data[0].pdf_url}></DispPDF>
+                {/* <DispPDF url={data[0].pdf_url}></DispPDF> */}
               </div>
             </div>
           </div>
