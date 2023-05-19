@@ -5,7 +5,7 @@ import Link from "next/link"
 import example from "@/public/example.json"
 import axios from "axios"
 import { Bot, Loader2 } from "lucide-react"
-
+import { run } from "@/api/serverNext"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ApiFilter } from "@/components/apiFilter"
@@ -30,6 +30,7 @@ export default function IndexPage() {
   }
 
   useEffect(() => {
+    // run()
     console.log(example)
     setData([example])
   }, [])
