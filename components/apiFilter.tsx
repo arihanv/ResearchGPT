@@ -58,22 +58,18 @@ export function ApiFilter({ setData }: Props) {
   }
 
   async function getData(query: string) {
-    const res = await fetch("http://localhost:8000/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query }),
-    })
-
+    const url = `https://vfhacks-1-b9920186.deta.app/search?query=${encodeURIComponent(query)}`;
+    
+    const res = await fetch(url);
+  
     if (!res.ok) {
-      console.error(await res.json())
-      throw new Error("Failed to fetch data")
+      console.error(await res.json());
+      throw new Error("Failed to fetch data");
     }
-
-    return res.json()
+  
+    return res.json();
   }
-
+  
   const filter = async (input: string) => {
     setIsProcessing(true)
     // await sleep(500)

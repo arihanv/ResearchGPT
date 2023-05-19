@@ -30,7 +30,7 @@ const DispPDF = ({ url }: Props) => {
     const fetchPDF = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8000/api/pdf?url=" + url,
+          "https://vfhacks-1-b9920186.deta.app/pdf?url=" + url,
           {
             responseType: "arraybuffer",
           }
