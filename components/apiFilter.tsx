@@ -19,12 +19,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 type Props = {
   setData: React.Dispatch<React.SetStateAction<any[]>>
+  disabled: boolean
 }
 
-export function ApiFilter({ setData }: Props) {
+export function ApiFilter({ setData, disabled }: Props) {
   const [open, setOpen] = React.useState(false)
   const [input, setInput] = React.useState<string>("")
   const [example, setExample] = React.useState<string>("")
@@ -32,9 +39,16 @@ export function ApiFilter({ setData }: Props) {
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false)
 
   React.useEffect(() => {
+    if (disabled === true) {
+      setOpen(false)
+    }
+    console.log(disabled)
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && e.metaKey) {
-        setOpen((open) => !open)
+        if (disabled !== true) {
+          console.log("open")
+          setOpen((open) => !open)
+        }
       }
     }
     document.addEventListener("keydown", down)
@@ -58,18 +72,20 @@ export function ApiFilter({ setData }: Props) {
   }
 
   async function getData(query: string) {
-    const url = `https://vfhacks-1-b9920186.deta.app/search?query=${encodeURIComponent(query)}`;
-    
-    const res = await fetch(url);
-  
+    const url = `https://vfhacks-1-b9920186.deta.app/search?query=${encodeURIComponent(
+      query
+    )}`
+
+    const res = await fetch(url)
+
     if (!res.ok) {
-      console.error(await res.json());
-      throw new Error("Failed to fetch data");
+      console.error(await res.json())
+      throw new Error("Failed to fetch data")
     }
-  
-    return res.json();
+
+    return res.json()
   }
-  
+
   const filter = async (input: string) => {
     setIsProcessing(true)
     // await sleep(500)
@@ -117,7 +133,7 @@ export function ApiFilter({ setData }: Props) {
         </Button>
         <CommandDialog open={open} onOpenChange={() => handleOpen()}>
           <div className="flex items-center border-b-[1px] px-3">
-            <SearchIcon color="gray" size={30}></SearchIcon>
+            <SearchIcon color="gray" size={20}></SearchIcon>
             <Input
               className="placeholder:text-foreground-muted flex h-12 w-[90%] rounded-md rounded-b-none border-0 bg-transparent text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
               value={input}
@@ -125,7 +141,7 @@ export function ApiFilter({ setData }: Props) {
               onKeyDown={handleKeyDown}
               placeholder="Type a command or search..."
             />
-            <Select defaultValue="relevance">
+            {/* <Select defaultValue="relevance">
               <SelectTrigger className="mr-8 w-[150px]">
                 <SelectValue placeholder="Sort By" />
               </SelectTrigger>
@@ -135,11 +151,11 @@ export function ApiFilter({ setData }: Props) {
                   <SelectItem value="date">Pub Date</SelectItem>
                 </SelectGroup>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
           {!isProcessing ? (
             <>
-              {results.length > 0 ? (
+              {results.length > 0 && results[0] !== "none" ? (
                 <CommandList>
                   <div className="flex flex-col gap-1 p-2">
                     {results.map((result, index) => (
@@ -155,18 +171,14 @@ export function ApiFilter({ setData }: Props) {
                   </div>
                 </CommandList>
               ) : (
-                results.includes("none") && (
-                  <div className="m-4 flex justify-center">
-                    <div className="text-sm text-gray-500">
-                      No Results Found
-                    </div>
-                  </div>
-                )
+                <div className="m-4 flex justify-center">
+                  <div className="text-sm text-gray-500">No Results Found</div>
+                </div>
               )}
             </>
           ) : (
             <div className="m-4 flex justify-center">
-              <div className="animate-spin text-sm text-gray-500 repeat-infinite">
+              <div className="animate-spin-repeat-infinite animate-spin text-sm text-gray-500">
                 <Loader2 />
               </div>
             </div>

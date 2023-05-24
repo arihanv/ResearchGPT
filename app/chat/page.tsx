@@ -1,6 +1,9 @@
 "use client"
 
 import React from "react"
+import { run } from "@/api/serverNext"
+import Cookie from "js-cookie"
+import { OpenAI } from "langchain/llms/openai"
 import { Loader2, Send } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -10,31 +13,22 @@ import { Input } from "@/components/ui/input"
 
 import { ComboboxDemo } from "./models"
 
-type Props = {}
-
 type Message = {
   id: number
   text: string
 }
 
-async function getData(query: string) {
-  const res = await fetch("http://localhost:8000/gpt", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-  })
-
-  if (!res.ok) {
-    console.error(await res.json())
-    throw new Error("Failed to fetch data")
-  }
-
-  return res.json()
+type Props = {
+  data: Record<string, any>
 }
 
-export default function Chat({}: Props) {
+// async function getData(query: string) {
+//   const res = await model.call(query);
+//   return res
+// }
+
+export default function Chat({ data }: Props) {
+  const [vectorStore, setVectorStore] = React.useState({ ss: "ss" })
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
   const chatDivRef = React.useRef<HTMLDivElement>(null)
@@ -42,9 +36,15 @@ export default function Chat({}: Props) {
   const [completedTyping, setCompletedTyping] = React.useState(false)
   const [displayResponse, setDisplayResponse] = React.useState("")
 
+  const model = new OpenAI({
+    modelName: "gpt-3.5-turbo",
+    temperature: 0.5,
+    openAIApiKey: Cookie.get("key"),
+  })
+
   const bot = async (input: string) => {
     setIsProcessing(true)
-    const data = await getData(input)
+    const data = await model.call(input)
     console.log(data)
     setMessages((prevMessages) => [...prevMessages, { id: 0, text: data }])
     setIsProcessing(false)
@@ -60,21 +60,47 @@ export default function Chat({}: Props) {
   }
 
   React.useEffect(() => {
+    // setVectorStore({})
+    // if (data.length === 0) return;
+    // const fetchVectorStore = async () => {
+    //   const result = await run(data.pdf_url, process.env.NEXT_PUBLIC_OPENAIKEY as string);
+    //   setVectorStore(result);
+    // };
+    // fetchVectorStore();
+  }, [data])
+
+  // React.useEffect(() => {
+  //   // Ensure vectorStore is available before accessing its methods
+  //   if (vectorStore) {
+  //     const searchSimilarity = async () => {
+  //       try {
+  //         const resultOne = await vectorStore.similaritySearch("Therefore, for this model, making model-\ngenerated attention more human-like is the best choice", 3);
+  //         console.log(resultOne);
+  //       } catch (error) {
+  //         console.error("Error in similarity search:", error);
+  //       }
+  //     };
+
+  //     searchSimilarity();
+  //   }
+  // }, [vectorStore]);
+
+  React.useEffect(() => {
     setMessages([
       {
         id: 0,
-        text: "Hello, I'm GPT-3. How can I help you?",
+        text: "Ask me about " + data.title,
       },
-      {
-        id: 1,
-        text: "I want to know more about you.",
-      },
-      {
-        id: 0,
-        text: "I'm a chatbot powered by GPT-3. I can answer questions, tell jokes, and more.",
-      },
+      // {
+      //   id: 1,
+      //   text: "I want to know more about you.",
+      // },
+      // {
+      //   id: 0,
+      //   text: "I'm a chatbot powered by GPT-3. I can answer questions, tell jokes, and more.",
+      // },
     ])
-  }, [])
+  }, [data])
 
   React.useEffect(() => {
     setCompletedTyping(false)
@@ -107,6 +133,17 @@ export default function Chat({}: Props) {
       chatDivRef.current.scrollTop = chatDivRef.current.scrollHeight
     }
   }, [messages, displayResponse])
+
+  if (Object.keys(vectorStore).length === 0) {
+    return (
+      <div className="flex h-[425px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+        <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
+          <Loader2 size={30} />
+        </div>
+        Indexing...
+      </div>
+    )
+  }
 
   return (
     <>

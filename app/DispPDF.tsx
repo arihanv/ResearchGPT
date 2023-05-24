@@ -44,7 +44,6 @@ const DispPDF = ({ url }: Props) => {
         setIsLoading(false)
       }
     }
-
     fetchPDF()
   }, [url])
 
@@ -106,14 +105,15 @@ const DispPDF = ({ url }: Props) => {
     <div
       id="pdfCont"
       ref={pdfContRef}
-      className="h-[900px] w-[695px] bg-gray-100 focus:bg-red-500 dark:bg-gray-900"
+      className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900"
     >
       {isLoading ? (
-        <div className="flex h-[900px] w-[695px] items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="flex h-[900px] w-[695px] items-center justify-center gap-2 bg-gray-100 text-gray-400 font-medium dark:bg-gray-900 dark:text-gray-500">
           {" "}
           <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
             <Loader2 size={30} />
           </div>
+          Fetching PDF...
         </div>
       ) : (
         <div className="pdfContainer rounded-lg">

@@ -9,16 +9,11 @@ type Props = {
 }
 
 export default function InfoBox({ data }: Props) {
-  const date = {
-    published: "2021-08-01",
-    update: "2021-08-01",
-  }
 
   React.useEffect(() => {
     console.log(typeof data.pdf_url)
   }, [data])
 
-  const authors = ["Michael", "Mark", "Damien", "Damien", "Damien", "Damien"]
   return (
     <>
       <div className="max-w-3xl rounded-xl border border-gray-700 bg-white p-1 drop-shadow-xl dark:bg-black">
