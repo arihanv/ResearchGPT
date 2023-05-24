@@ -1,6 +1,7 @@
 import axios from "axios"
 import { OpenAIEmbeddings } from "langchain/embeddings/openai"
 import { MemoryVectorStore } from "langchain/vectorstores/memory"
+import Cookie from "js-cookie"
 
 async function getData(query: string) {
     const url = `https://test-1-z9723294.deta.app/splits?url=${encodeURIComponent(query)}`;
@@ -23,7 +24,7 @@ export const run = async (url: string, key: string) => {
   //   response.text,
   //   response.meta,
   //   new OpenAIEmbeddings({
-  //     openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY, // In Node.js defaults to process.env.OPENAI_API_KEY
+  //     openAIApiKey: Cookie.get("key"), // In Node.js defaults to process.env.OPENAI_API_KEY
   //   })
   // )
   // return vectorStore
@@ -31,7 +32,7 @@ export const run = async (url: string, key: string) => {
     ["Hello world", "Bye bye", "hello nice world"],
     [{ id: 2 }, { id: 1 }, { id: 1 }],
     new OpenAIEmbeddings({
-      openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY, // In Node.js defaults to process.env.OPENAI_API_KEY
+      openAIApiKey: Cookie.get("key"), // In Node.js defaults to process.env.OPENAI_API_KEY
     })
   )
   return vectorStore

@@ -2,6 +2,7 @@
 
 import React from "react"
 import { run } from "@/api/serverNext"
+import Cookie from "js-cookie"
 import { OpenAI } from "langchain/llms/openai"
 import { Loader2, Send } from "lucide-react"
 
@@ -21,14 +22,13 @@ type Props = {
   data: Record<string, any>
 }
 
-
 // async function getData(query: string) {
 //   const res = await model.call(query);
 //   return res
 // }
 
 export default function Chat({ data }: Props) {
-  const [vectorStore, setVectorStore] = React.useState({"ss":"ss"})
+  const [vectorStore, setVectorStore] = React.useState({ ss: "ss" })
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
   const chatDivRef = React.useRef<HTMLDivElement>(null)
@@ -39,7 +39,7 @@ export default function Chat({ data }: Props) {
   const model = new OpenAI({
     modelName: "gpt-3.5-turbo",
     temperature: 0.5,
-    openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
+    openAIApiKey: Cookie.get("key"),
   })
 
   const bot = async (input: string) => {
@@ -136,7 +136,7 @@ export default function Chat({ data }: Props) {
 
   if (Object.keys(vectorStore).length === 0) {
     return (
-      <div className="flex h-[425px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 text-gray-400 font-medium drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+      <div className="flex h-[425px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
         <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
           <Loader2 size={30} />
         </div>
