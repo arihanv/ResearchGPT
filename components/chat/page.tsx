@@ -18,16 +18,12 @@ type Message = {
   text: string
 }
 
-type Props = {
-  data: Record<string, any>
-}
-
 // async function getData(query: string) {
 //   const res = await model.call(query);
 //   return res
 // }
 
-export default function Chat({ data }: Props) {
+export default function Chat(data: any) {
   const [vectorStore, setVectorStore] = React.useState({ ss: "ss" })
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
@@ -67,7 +63,8 @@ export default function Chat({ data }: Props) {
     //   setVectorStore(result);
     // };
     // fetchVectorStore();
-  }, [data])
+    console.log(data.data)
+  }, [data.data])
 
   // React.useEffect(() => {
   //   // Ensure vectorStore is available before accessing its methods
@@ -89,7 +86,7 @@ export default function Chat({ data }: Props) {
     setMessages([
       {
         id: 0,
-        text: "Ask me about " + data.title,
+        text: "Ask me about " + data.data.title,
       },
       // {
       //   id: 1,
@@ -100,7 +97,7 @@ export default function Chat({ data }: Props) {
       //   text: "I'm a chatbot powered by GPT-3. I can answer questions, tell jokes, and more.",
       // },
     ])
-  }, [data])
+  }, [data.data])
 
   React.useEffect(() => {
     setCompletedTyping(false)
