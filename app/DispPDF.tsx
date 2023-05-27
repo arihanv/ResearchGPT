@@ -22,7 +22,7 @@ const DispPDF = ({ url }: Props) => {
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
-  const [input, setInput] = useState<string>(null)
+  const [input, setInput] = useState<string>(0)
   const pdfContRef = useRef(null)
 
   useEffect(() => {

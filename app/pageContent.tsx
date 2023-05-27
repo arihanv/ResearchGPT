@@ -62,10 +62,6 @@ export default function PageContent(data:any) {
     //   }
     // }, [vectorStore]);
 
-    {
-      console.log(data.data[0])
-    }
-  
     return (
       <>
         {Object.keys(data.data[0]).length != 0 ? (

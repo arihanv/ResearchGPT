@@ -24,7 +24,7 @@ type Message = {
 // }
 
 export default function Chat(data: any) {
-  const [vectorStore, setVectorStore] = React.useState({ ss: "ss" })
+  const [vectorStore, setVectorStore] = React.useState({  })
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
   const chatDivRef = React.useRef<HTMLDivElement>(null)
@@ -56,13 +56,14 @@ export default function Chat(data: any) {
   }
 
   React.useEffect(() => {
-    // setVectorStore({})
-    // if (data.length === 0) return;
-    // const fetchVectorStore = async () => {
-    //   const result = await run(data.pdf_url, process.env.NEXT_PUBLIC_OPENAIKEY as string);
-    //   setVectorStore(result);
-    // };
-    // fetchVectorStore();
+    setVectorStore({})
+    if (data.data.length === 0) return;
+    const fetchVectorStore = async () => {
+      const result = await run(data.data.pdf_url, process.env.NEXT_PUBLIC_OPENAIKEY as string);
+      console.log(result.memoryVectors)
+      setVectorStore(result);
+    };
+    fetchVectorStore();
     console.log(data.data)
   }, [data.data])
 
@@ -86,7 +87,7 @@ export default function Chat(data: any) {
     setMessages([
       {
         id: 0,
-        text: "Ask me about " + data.data.title,
+        text: `Ask me about "${data.data.title}"`,
       },
       // {
       //   id: 1,

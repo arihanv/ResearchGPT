@@ -6,6 +6,7 @@ const nextConfig = {
   },
   webpack: (config) => {
       config.externals = [...config.externals, "canvas", "jsdom"];
+      config.resolve.fallback = { fs: false };
      return config;
   },
   eslint: {
