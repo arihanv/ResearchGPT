@@ -1,11 +1,9 @@
-import axios from "axios"
 import Cookie from "js-cookie"
 import { OpenAIEmbeddings } from "langchain/embeddings/openai"
 import {
   MemoryVectorStore,
 } from "langchain/vectorstores/memory"
 import drive from "./det"
-import data from "./test.json"
 
 async function getData(query: string) {
   const url = `https://test-1-z9723294.deta.app/splits?url=${encodeURIComponent(
@@ -44,12 +42,12 @@ function cleanData(data: any) {
   const cleanedData = data.map((obj:any) => {
     const cleanedContent = obj.content.replace(/\n/g, "");
     const encodedContent = cleanedContent.replace(/[^\x00-\x7F]/g, "");
-    return { content: encodedContent, embedding: obj.embedding };
+    return { content: encodedContent, embedding: obj.embedding, metadata: obj.metadata};
   });
   return cleanedData
 }
 
-export const run = async (url: string, key: string) => {
+export const run = async (url: string) => {
   const parts = url.split("/")
   console.log(parts[parts.length - 1])
   const loadDeta = await checkExist(parts[parts.length - 1])

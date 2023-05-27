@@ -3,28 +3,31 @@
 import React from "react"
 import { run } from "@/api/serverNext"
 import Cookie from "js-cookie"
+import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
-import { Loader2, Send } from "lucide-react"
+import { InfoIcon, Loader2, Send } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
 import { ComboboxDemo } from "./models"
 
 type Message = {
   id: number
   text: string
+  pages?: string
 }
 
-// async function getData(query: string) {
-//   const res = await model.call(query);
-//   return res
-// }
-
 export default function Chat(data: any) {
-  const [vectorStore, setVectorStore] = React.useState({  })
+  const [retrievalChain, setRetrievalChain] = React.useState({})
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
   const chatDivRef = React.useRef<HTMLDivElement>(null)
@@ -39,10 +42,24 @@ export default function Chat(data: any) {
   })
 
   const bot = async (input: string) => {
+    if (input === "" || Object.keys(retrievalChain).length === 0) return
     setIsProcessing(true)
-    const data = await model.call(input)
-    console.log(data)
-    setMessages((prevMessages) => [...prevMessages, { id: 0, text: data }])
+    {/*@ts-ignore*/}
+    const res = await retrievalChain.call({
+      query: input,
+    })
+    console.log(res)
+    const pageNumbers = new Set()
+    res.sourceDocuments.forEach((document: any) => {
+      const pageNumber = document.metadata.page
+      pageNumbers.add(pageNumber)
+    })
+    const pagesString = Array.from(pageNumbers).join(", ")
+    console.log(pagesString)
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { id: 0, text: res.text, pages: pagesString },
+    ])
     setIsProcessing(false)
   }
 
@@ -56,38 +73,29 @@ export default function Chat(data: any) {
   }
 
   React.useEffect(() => {
-    setVectorStore({})
-    if (data.data.length === 0) return;
+    setRetrievalChain({})
+    if (data.data.length === 0) return
     const fetchVectorStore = async () => {
-      const result = await run(data.data.pdf_url, process.env.NEXT_PUBLIC_OPENAIKEY as string);
+      const result = await run(
+        data.data.pdf_url,
+      )
       console.log(result.memoryVectors)
-      setVectorStore(result);
-    };
-    fetchVectorStore();
+      const chain = RetrievalQAChain.fromLLM(model, result.asRetriever(), {
+        returnSourceDocuments: true,
+      })
+      console.log(chain)
+      setRetrievalChain(chain)
+    }
+    fetchVectorStore()
     console.log(data.data)
   }, [data.data])
-
-  // React.useEffect(() => {
-  //   // Ensure vectorStore is available before accessing its methods
-  //   if (vectorStore) {
-  //     const searchSimilarity = async () => {
-  //       try {
-  //         const resultOne = await vectorStore.similaritySearch("Therefore, for this model, making model-\ngenerated attention more human-like is the best choice", 3);
-  //         console.log(resultOne);
-  //       } catch (error) {
-  //         console.error("Error in similarity search:", error);
-  //       }
-  //     };
-
-  //     searchSimilarity();
-  //   }
-  // }, [vectorStore]);
 
   React.useEffect(() => {
     setMessages([
       {
         id: 0,
         text: `Ask me about "${data.data.title}"`,
+        // pages: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
       },
       // {
       //   id: 1,
@@ -132,7 +140,7 @@ export default function Chat(data: any) {
     }
   }, [messages, displayResponse])
 
-  if (Object.keys(vectorStore).length === 0) {
+  if (Object.keys(retrievalChain).length === 0) {
     return (
       <div className="flex h-[425px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
         <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
@@ -148,7 +156,7 @@ export default function Chat(data: any) {
       <div className="max-w-3xl rounded-xl border border-gray-700 bg-white p-1 drop-shadow-xl dark:bg-black">
         <div className="flex flex-col">
           <div className="flex flex-row flex-wrap items-center justify-center gap-2 rounded-t-lg border border-gray-700 bg-white p-2 dark:bg-black sm:justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Avatar>
                 <AvatarImage
                   src="https://avatars.githubusercontent.com/u/14957082?s=200&v=4"
@@ -161,9 +169,9 @@ export default function Chat(data: any) {
               </div>
               <Badge
                 variant="secondary"
-                className="ml-2 bg-green-200 bg-opacity-[0.6] dark:bg-green-900"
+                className="ml-2 bg-green-200 bg-opacity-[0.6] dark:bg-green-900 flex items-center text-sm"
               >
-                Connected
+                <div>Connected</div>
               </Badge>
             </div>
             <div>
@@ -191,26 +199,54 @@ export default function Chat(data: any) {
                   }`}
                 >
                   {message.id === 0 && index === messages.length - 1 ? (
-                    <div className="!text-sm">
-                      {displayResponse}
-                      {!completedTyping && (
-                        <svg
-                          viewBox="8 4 8 16"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="cursor !filter-invert"
-                        >
-                          <rect
-                            x="10"
-                            y="6"
-                            width="4"
-                            height="12"
-                            fill="#fff"
-                          />
-                        </svg>
+                    <>
+                      <div className="!text-sm">
+                        {displayResponse}
+                        {!completedTyping && (
+                          <svg
+                            viewBox="8 4 8 16"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="cursor !filter-invert"
+                          >
+                            <rect
+                              x="10"
+                              y="6"
+                              width="4"
+                              height="12"
+                              fill="#fff"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                      <>
+                      {message.pages !== undefined && message.id === 0 && (
+                        <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                          <div className="flex">
+                          <Popover>
+                          <PopoverTrigger><InfoIcon size={13} /> </PopoverTrigger>
+                          <PopoverContent side="left" className="text-sm" >These are the pages that GPT used to answer your question in order of relevance</PopoverContent>
+                          </Popover>
+                          </div>
+                          <p className="mt-[0.12rem]">Pages: {message.pages}</p>
+                        </div>
                       )}
-                    </div>
+                    </>
+                    </>
                   ) : (
-                    <p className="text-sm">{message.text}</p>
+                    <>
+                      <p className="text-sm">{message.text}</p>
+                      {message.pages !== undefined && message.id === 0 && (
+                        <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                          <div className="flex">
+                          <Popover>
+                          <PopoverTrigger><InfoIcon size={13} /> </PopoverTrigger>
+                          <PopoverContent side="left">Place content for the popover here.</PopoverContent>
+                          </Popover>
+                          </div>
+                          <p className="mt-[0.12rem]">Pages: {message.pages}</p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

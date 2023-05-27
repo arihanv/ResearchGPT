@@ -1,22 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
-import { run } from "@/api/serverNext"
-import example from "@/public/example.json"
-import axios from "axios"
 import Cookie from "js-cookie"
 import { OpenAIEmbeddings } from "langchain/embeddings/openai"
 import { ArrowUp, Bot, Info, Loader2 } from "lucide-react"
-import { Page } from "react-pdf"
-
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ApiFilter } from "@/components/apiFilter"
 import Footer from "@/components/footer"
-
-import DispPDF from "./DispPDF"
-import InfoBox from "./infoBox"
 import PageContent from "./pageContent"
 
 // type Props = {
