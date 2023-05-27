@@ -90,7 +90,6 @@ const DispPDF = ({ url }: Props) => {
       if (pdfContRef.current && document.activeElement === pdfContRef.current) {
         if (e.key === "ArrowRight") {
           setPageNumber((prevPageNumber) => prevPageNumber + 1)
-          console.log("right")
         }
         if (e.key === "ArrowLeft") {
           handlePreviousPage()

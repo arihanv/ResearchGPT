@@ -24,9 +24,7 @@ async function checkExist(id: string) {
   try {
     const file = await drive.get(id)
     if (file === null) return null
-    console.log("File exists:", id)
     const content = await file.text()
-    console.log(content)
     const jsonData = JSON.parse(content)
     return jsonData
   } catch (error: any) {
@@ -49,7 +47,6 @@ function cleanData(data: any) {
 
 export const run = async (url: string) => {
   const parts = url.split("/")
-  console.log(parts[parts.length - 1])
   const loadDeta = await checkExist(parts[parts.length - 1])
 
   if (loadDeta !== null) {
@@ -60,7 +57,6 @@ export const run = async (url: string) => {
       })
     )
     loadStore.memoryVectors = loadDeta
-    console.log(loadStore, loadDeta)
     return loadStore
   } else {
     console.log("Does not exist")
@@ -72,7 +68,6 @@ export const run = async (url: string) => {
         openAIApiKey: Cookie.get("key"),
       })
     )
-    console.log(vectorStore)
     await drive.put(parts[parts.length - 1], {
       data: JSON.stringify(cleanData(vectorStore.memoryVectors)),
     })

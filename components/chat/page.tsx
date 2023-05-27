@@ -6,7 +6,6 @@ import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
 import { InfoIcon, Loader2, Send } from "lucide-react"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -48,14 +47,13 @@ export default function Chat(data: any) {
     const res = await retrievalChain.call({
       query: input,
     })
-    console.log(res)
+    // console.log(res)
     const pageNumbers = new Set()
     res.sourceDocuments.forEach((document: any) => {
       const pageNumber = document.metadata.page
       pageNumbers.add(pageNumber)
     })
     const pagesString = Array.from(pageNumbers).join(", ")
-    console.log(pagesString)
     setMessages((prevMessages) => [
       ...prevMessages,
       { id: 0, text: res.text, pages: pagesString },
@@ -79,15 +77,14 @@ export default function Chat(data: any) {
       const result = await run(
         data.data.pdf_url,
       )
-      console.log(result.memoryVectors)
+      // console.log(result.memoryVectors)
       const chain = RetrievalQAChain.fromLLM(model, result.asRetriever(), {
         returnSourceDocuments: true,
       })
-      console.log(chain)
+      // console.log(chain)
       setRetrievalChain(chain)
     }
     fetchVectorStore()
-    console.log(data.data)
   }, [data.data])
 
   React.useEffect(() => {

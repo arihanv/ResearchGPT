@@ -42,11 +42,9 @@ export function ApiFilter({ setData, disabled }: Props) {
     if (disabled === true) {
       setOpen(false)
     }
-    console.log(disabled)
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && e.metaKey) {
         if (disabled !== true) {
-          console.log("open")
           setOpen((open) => !open)
         }
       }
@@ -56,7 +54,6 @@ export function ApiFilter({ setData, disabled }: Props) {
   }, [])
 
   const handleSubmit = (text: string) => {
-    console.log("submit")
     setExample(text)
   }
 
@@ -88,11 +85,8 @@ export function ApiFilter({ setData, disabled }: Props) {
 
   const filter = async (input: string) => {
     setIsProcessing(true)
-    // await sleep(500)
     const data = await getData(input)
     setResults(data)
-    console.log(data)
-    // setResults(["hello", "world", input])
     setIsProcessing(false)
   }
 
