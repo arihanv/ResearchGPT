@@ -1,22 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
-import { run } from "@/api/serverNext"
-import example from "@/public/example.json"
-import axios from "axios"
+import Cookie from "js-cookie"
 import { OpenAIEmbeddings } from "langchain/embeddings/openai"
 import { ArrowUp, Bot, Info, Loader2 } from "lucide-react"
-import { Page } from "react-pdf"
-
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import Cookie from "js-cookie"
 import { ApiFilter } from "@/components/apiFilter"
 import Footer from "@/components/footer"
-
-import DispPDF from "./DispPDF"
-import InfoBox from "./infoBox"
 import PageContent from "./pageContent"
 
 // type Props = {
@@ -28,22 +19,24 @@ export default function IndexPage() {
   const [data, setData] = useState<any[]>([])
   const [key, setKey] = useState<string>(Cookie.get("key") || "")
   const [verify, setVerify] = useState<boolean>(false)
+  const [submit, setSubmit] = useState<boolean>(false)
 
   useEffect(() => {
-    if(key == Cookie.get("key")){
+    if (key == Cookie.get("key")) {
       setVerify(true)
       return
     }
   }, [])
 
   const send = async (key: string) => {
+    setSubmit(true)
     if (key == "" || key == Cookie.get("key")) return
     const embeddings = new OpenAIEmbeddings({ openAIApiKey: key })
     try {
       const res = await embeddings.embedQuery("t")
       if (res != null) {
         setVerify(true)
-        Cookie.set("key",key)
+        Cookie.set("key", key)
         console.log("Valid key")
       } else {
         setVerify(false)
@@ -65,10 +58,10 @@ export default function IndexPage() {
     <section className="m-auto grid max-w-[1200px] items-center gap-6 pb-8 pt-6 md:py-10">
       <div className="flex flex-col items-center justify-center gap-2">
         <h1 className="text-center text-3xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
-          Research GPT
+          Koios GPT
         </h1>
         <p className="text-center text-lg text-muted-foreground sm:text-xl">
-          Chat with research articles
+          Chat with research papers
         </p>
       </div>
       <div className="flex flex-wrap justify-center gap-4">
@@ -115,9 +108,15 @@ export default function IndexPage() {
             <div>
               {verify !== true ? (
                 <div className="flex flex-col items-center gap-2 text-sm font-semibold">
-                  <div className="flex flex-col gap-0.5 items-center mb-1">
+                  <div className="mb-1 flex flex-col items-center gap-0.5">
                     <ArrowUp size={15} />
-                   <p>Enter Valid Key</p>
+                    {
+                      submit === true && verify === false ? (
+                        <p>Invalid Key ❌</p>
+                      ) : (
+                        <p>Enter Valid Key</p>
+                      )
+                    }
                   </div>
                   <div className="m-auto h-full w-fit rounded-xl bg-white p-1 drop-shadow-xl hover:cursor-not-allowed dark:bg-black">
                     <div className="pointer-events-none flex rounded-xl border bg-white p-1 dark:bg-black">

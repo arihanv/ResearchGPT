@@ -20,18 +20,30 @@ import {
 
 const frameworks = [
   {
-    value: "chatgpt",
-    label: "ChatGPT",
+    value: "gpt-3.5-turbo",
+    label: "gpt-3.5-turbo",
   },
   {
-    value: "text-davinci",
-    label: "text-davinci",
+    value: "text-davinci-003",
+    label: "text-davinci-003",
+  },
+  {
+    value: "gpt-4",
+    label: "gpt-4",
   },
 ]
+  
 
-export function ComboboxDemo() {
+export function ComboboxDemo(props: any) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("chatgpt")
+  const [value, setValue] = React.useState("gpt-3.5-turbo")
+
+
+React.useEffect(() => {
+  if (value) {
+    props.setModelType(value)
+  }
+}, [value])
   
 
   return (

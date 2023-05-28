@@ -5,7 +5,8 @@ const nextConfig = {
     appDir: true,
   },
   webpack: (config) => {
-      config.externals = [...config.externals, "canvas", "jsdom"];
+      config.externals = [...config.externals, "canvas", "jsdom","encoding","detalib"];
+      config.resolve.fallback = { fs: false };
      return config;
   },
   eslint: {

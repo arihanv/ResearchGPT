@@ -10,10 +10,6 @@ type Props = {
 
 export default function InfoBox({ data }: Props) {
 
-  React.useEffect(() => {
-    console.log(typeof data.pdf_url)
-  }, [data])
-
   return (
     <>
       <div className="max-w-3xl rounded-xl border border-gray-700 bg-white p-1 drop-shadow-xl dark:bg-black">
