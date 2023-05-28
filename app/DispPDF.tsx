@@ -7,9 +7,11 @@ import axios from "axios"
 import { Document, Page, pdfjs } from "react-pdf"
 
 import "../styles/pdf.css"
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
-import { useAtom } from 'jotai';
+import { useAtom } from "jotai"
+import { ChevronLeft, ChevronRight, Loader2, ServerCrash } from "lucide-react"
+
 import { pageNumberAtom } from "@/components/shared/sharedState"
+
 import "react-pdf/dist/esm/Page/TextLayer.css"
 import "react-pdf/dist/esm/Page/AnnotationLayer.css"
 import { Input } from "@/components/ui/input"
@@ -24,8 +26,9 @@ const DispPDF = ({ url }: Props) => {
   const [pageNumber, setPageNumber] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [input, setInput] = useState<string>(0)
+  const [failed, setFailed] = useState(false)
   const pdfContRef = useRef(null)
-  const [pageNum] = useAtom(pageNumberAtom);
+  const [pageNum] = useAtom(pageNumberAtom)
 
   useEffect(() => {
     setIsLoading(true)
@@ -42,6 +45,8 @@ const DispPDF = ({ url }: Props) => {
         setPdfUrl(pdfUrl)
       } catch (error) {
         console.error("Error:", error)
+        setPdfUrl(null)
+        setFailed(true)
       } finally {
         setIsLoading(false)
       }
@@ -107,55 +112,81 @@ const DispPDF = ({ url }: Props) => {
     return () => document.removeEventListener("keydown", down)
   }, [pageNumber])
 
-  return (
-    <div
-      id="pdfCont"
-      ref={pdfContRef}
-      className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900"
-    >
-      {isLoading ? (
-        <div className="flex h-[900px] w-[695px] items-center justify-center gap-2 bg-gray-100 text-gray-400 font-medium dark:bg-gray-900 dark:text-gray-500">
+  if (isLoading) {
+    return (
+      <div
+        id="pdfCont"
+        ref={pdfContRef}
+        className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900"
+      >
+        <div className="flex h-[900px] w-[695px] items-center justify-center gap-2 bg-gray-100 font-medium text-gray-400 dark:bg-gray-900 dark:text-gray-500">
           {" "}
           <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
             <Loader2 size={30} />
           </div>
           Fetching PDF...
         </div>
-      ) : (
-        <div className="pdfContainer rounded-lg">
-          <Document
-            className="dark:invert"
-            style={{ textAlign: "center" }}
-            file={pdfUrl}
-            onLoadSuccess={onDocumentLoadSuccess}
-          >
-            <Page pageNumber={pageNumber} height={900} width={695} />
-          </Document>
-          <div className="absolute mt-1 flex justify-center rounded-xl bg-white p-1.5 shadow-md dark:bg-gray-800">
-            <button onClick={handlePreviousPage} disabled={pageNumber === 1}>
-              <ChevronLeft
-                className={pageNumber === 1 ? "text-gray-300" : ""}
-              />
-            </button>
-            <span className="mx-2 flex items-center">
-              Page{" "}
-              <Input
-                className="ml-2 mr-0.5 h-7 w-11 focus-visible:ring-0"
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSkip(input)}
-              />{" "}
-              / {numPages}
-            </span>
-            <button onClick={handleNextPage} disabled={pageNumber === numPages}>
-              <ChevronRight
-                className={pageNumber === numPages ? "text-gray-300" : ""}
-              />
-            </button>
+      </div>
+    )
+  }
+
+
+  if (failed) {
+    return (
+      <div
+        id="pdfCont"
+        ref={pdfContRef}
+        className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900"
+      >
+        <div className="flex h-[900px] w-[695px] items-center justify-center gap-2 bg-gray-100 font-medium text-gray-400 dark:bg-gray-900 dark:text-gray-500">
+          <div className="max-w-[300px] text-center gap-2 flex flex-col items-center">
+          <ServerCrash size={30}/>
+          <div className="font-semibold">Failed to load PDF</div>
+          <p className="text-sm">PDF retrieval error: Server timeout (exceeded 20-second limit)</p>
+          <p className="text-sm">Maybe try again later?</p>
           </div>
         </div>
-      )}
+      </div>
+    )
+  }
+
+  return (
+    <div
+      id="pdfCont"
+      ref={pdfContRef}
+      className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900"
+    >
+      <div className="pdfContainer rounded-lg">
+        <Document
+          className="dark:invert"
+          style={{ textAlign: "center" }}
+          file={pdfUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+        >
+          <Page pageNumber={pageNumber} height={900} width={695} />
+        </Document>
+        <div className="absolute mt-1 flex justify-center rounded-xl bg-white p-1.5 shadow-md dark:bg-gray-800">
+          <button onClick={handlePreviousPage} disabled={pageNumber === 1}>
+            <ChevronLeft className={pageNumber === 1 ? "text-gray-300" : ""} />
+          </button>
+          <span className="mx-2 flex items-center">
+            Page{" "}
+            <Input
+              className="ml-2 mr-0.5 h-7 w-11 focus-visible:ring-0"
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSkip(input)}
+            />{" "}
+            / {numPages}
+          </span>
+          <button onClick={handleNextPage} disabled={pageNumber === numPages}>
+            <ChevronRight
+              className={pageNumber === numPages ? "text-gray-300" : ""}
+            />
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

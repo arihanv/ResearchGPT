@@ -71,7 +71,7 @@ export default function InfoBox({ data }: Props) {
               </div>
             </TabsContent>
             <TabsContent value="summary" className="h-[80%] overflow-y-scroll">
-              <div className="flex flex-col gap-2 p-1 text-sm">
+              <div className="flex flex-col gap-2 p-2 text-sm">
                 {data.summary}
               </div>
             </TabsContent>
