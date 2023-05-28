@@ -16,7 +16,6 @@ async function getData(query: string) {
     console.error(await res.json())
     throw new Error("Failed to fetch data")
   }
-  // await new Promise((r) => setTimeout(r, 2000))
   return res.json()
 }
 

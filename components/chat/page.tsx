@@ -6,7 +6,7 @@ import { useAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
-import { InfoIcon, Loader2, Send } from "lucide-react"
+import { Info, Loader2, Send, ServerCrash, Trash } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -38,6 +38,7 @@ export default function Chat(data: any) {
   const [completedTyping, setCompletedTyping] = React.useState(false)
   const [displayResponse, setDisplayResponse] = React.useState("")
   const [modelType, setModelType] = React.useState("gpt-3.5-turbo")
+  const [failed, setFailed] = React.useState(false)
 
   const model = new OpenAI({
     modelName: modelType,
@@ -51,7 +52,7 @@ export default function Chat(data: any) {
     try {
       /*@ts-ignore*/
       const res = await retrievalChain.call({
-        query: input,
+        query: `Answer the question based on the context from the research paper. Question: "${input}"`,
       })
       // console.log(res)
       const pageNumbers = new Set()
@@ -123,10 +124,16 @@ export default function Chat(data: any) {
       // console.log(chain)
       setRetrievalChain(chain)
     }
+    try{
     fetchVectorStore()
+    } catch(e){
+      console.log(e)
+      setFailed(true)
+    }
   }, [data.data])
 
-  React.useEffect(() => {
+
+  function resetMessages() {
     setMessages([
       {
         id: 0,
@@ -134,6 +141,10 @@ export default function Chat(data: any) {
         // pages: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
       },
     ])
+  }
+
+  React.useEffect(() => {
+   resetMessages()
   }, [data.data])
 
   React.useEffect(() => {
@@ -170,11 +181,23 @@ export default function Chat(data: any) {
 
   if (Object.keys(retrievalChain).length === 0) {
     return (
-      <div className="flex h-[425px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
         <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
           <Loader2 size={30} />
         </div>
         Indexing...
+      </div>
+    )
+  }
+  if (failed) {
+    return (
+      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+        <div className="max-w-[200px] text-center gap-2 flex flex-col items-center">
+          <ServerCrash size={30}/>
+          <div className="font-semibold">Failed to Index</div>
+          <p className="text-sm">Error: Server timeout (exceeded 20-second limit)</p>
+          <p className="text-sm">Maybe try again later?</p>
+          </div>
       </div>
     )
   }
@@ -208,7 +231,7 @@ export default function Chat(data: any) {
           </div>
           <div
             ref={chatDivRef}
-            className="h-[300px] overflow-y-scroll border-x border-b border-gray-700 p-2"
+            className="h-[400px] overflow-y-scroll border-x border-b border-gray-700 p-2"
           >
             {messages.map((message, index) => (
               <div
@@ -252,7 +275,7 @@ export default function Chat(data: any) {
                             <div className="flex">
                               <Popover>
                                 <PopoverTrigger>
-                                  <InfoIcon size={13} />{" "}
+                                  <Info size={13} />{" "}
                                 </PopoverTrigger>
                                 <PopoverContent side="left" className="text-sm">
                                   These are the pages that GPT used to answer
@@ -286,7 +309,7 @@ export default function Chat(data: any) {
                           <div className="flex">
                             <Popover>
                               <PopoverTrigger>
-                                <InfoIcon size={13} />{" "}
+                                <Info size={13} />{" "}
                               </PopoverTrigger>
                               <PopoverContent side="left">
                                 Place content for the popover here.
@@ -337,6 +360,9 @@ export default function Chat(data: any) {
             />
             <Button className="flex gap-3 rounded-l-none" type="submit">
               <Send onClick={() => send(input)}></Send>
+            </Button>
+            <Button className="flex ml-2 gap-3 bg-red-400 bg-opacity-100" type="submit">
+              <Trash onClick={() => resetMessages()}></Trash>
             </Button>
           </div>
         </div>
