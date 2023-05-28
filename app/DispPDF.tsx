@@ -32,6 +32,7 @@ const DispPDF = ({ url }: Props) => {
 
   useEffect(() => {
     setIsLoading(true)
+    setFailed(false)
     const fetchPDF = async () => {
       try {
         const response = await axios.get(
