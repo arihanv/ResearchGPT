@@ -39,6 +39,7 @@ export default function Chat(data: any) {
   const [displayResponse, setDisplayResponse] = React.useState("")
   const [modelType, setModelType] = React.useState("gpt-3.5-turbo")
   const [failed, setFailed] = React.useState(false)
+  const [long, setLong] = React.useState(false)
 
   const model = new OpenAI({
     modelName: modelType,
@@ -112,10 +113,16 @@ export default function Chat(data: any) {
   }, [modelType])
 
   React.useEffect(() => {
+    setLong(false)
     setRetrievalChain({})
     if (data.data.length === 0) return
     const fetchVectorStore = async () => {
       const result = await run(data.data.pdf_url)
+      if(result === null) {
+        setLong(true)
+        setRetrievalChain({"error": "too long"})
+        return
+      }
       setVectorStore(result)
       // console.log(result.memoryVectors)
       const chain = RetrievalQAChain.fromLLM(model, result.asRetriever(), {
@@ -197,6 +204,18 @@ export default function Chat(data: any) {
           <div className="font-semibold">Failed to Index</div>
           <p className="text-sm">Error: Server timeout (exceeded 20-second limit)</p>
           <p className="text-sm">Maybe try again later?</p>
+          </div>
+      </div>
+    )
+  }
+
+  if (long) {
+    return (
+      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+        <div className="max-w-[150px] text-center gap-2 flex flex-col items-center">
+          <ServerCrash size={30}/>
+          <div className="font-semibold">Too Large</div>
+          <p className="text-sm">Error: Paper is more than 20 pages</p>
           </div>
       </div>
     )

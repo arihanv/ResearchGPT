@@ -60,6 +60,7 @@ export const run = async (url: string) => {
   } else {
     console.log("Does not exist")
     const response = await getData(url)
+    if(Object.keys(response).length === 0) return null
     const vectorStore = await MemoryVectorStore.fromTexts(
       response.text,
       response.meta,
