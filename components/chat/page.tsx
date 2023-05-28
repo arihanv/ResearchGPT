@@ -265,10 +265,12 @@ export default function Chat(data: any) {
                               {Array.isArray(message.pages) &&
                                 message.pages.map((page, index) => (
                                   <React.Fragment key={index}>
-                                    <button onClick={() => setPageNumber(page)}>
+                                    <button className="italic underline font-semibold" onClick={() => setPageNumber(page)}>
                                       {page}
                                     </button>
-                                    {index !== message.pages.length - 1 && ", "}
+                                    {index !==
+                                      (message.pages as Array<any>).length -
+                                        1 && ", "}
                                   </React.Fragment>
                                 ))}
                             </p>
@@ -297,10 +299,12 @@ export default function Chat(data: any) {
                             {Array.isArray(message.pages) &&
                               message.pages.map((page, index) => (
                                 <React.Fragment key={index}>
-                                  <button onClick={() => setPageNumber(page)}>
+                                  <button className="italic underline font-semibold" onClick={() => setPageNumber(page)}>
                                     {page}
                                   </button>
-                                  {index !== message.pages.length - 1 && ", "}
+                                  {index !==
+                                    (message.pages as Array<any>).length -
+                                      1 && ", "}
                                 </React.Fragment>
                               ))}
                           </p>
