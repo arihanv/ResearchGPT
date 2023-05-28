@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react"
 import { run } from "@/api/serverNext"
+import { useAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
@@ -16,16 +17,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { pageNumberAtom } from "@/components/shared/sharedState"
 
 import { ComboboxDemo } from "./models"
 
 type Message = {
   id: number
   text: string
-  pages?: string
+  pages?: {}
 }
 
 export default function Chat(data: any) {
+  const [pageNumber, setPageNumber] = useAtom(pageNumberAtom)
   const [retrievalChain, setRetrievalChain] = React.useState({})
   const [vectorStore, setVectorStore] = React.useState({} as any)
   const [messages, setMessages] = React.useState<Message[]>([])
@@ -56,10 +59,10 @@ export default function Chat(data: any) {
         const pageNumber = document.metadata.page
         pageNumbers.add(pageNumber)
       })
-      const pagesString = Array.from(pageNumbers).join(", ")
+      const pageNums = Array.from(pageNumbers)
       setMessages((prevMessages) => [
         ...prevMessages,
-        { id: 0, text: res.text, pages: pagesString },
+        { id: 0, text: res.text, pages: pageNums },
       ])
     } catch (e) {
       console.log(e)
@@ -130,14 +133,6 @@ export default function Chat(data: any) {
         text: `Ask me about "${data.data.title}"`,
         // pages: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
       },
-      // {
-      //   id: 1,
-      //   text: "I want to know more about you.",
-      // },
-      // {
-      //   id: 0,
-      //   text: "I'm a chatbot powered by GPT-3. I can answer questions, tell jokes, and more.",
-      // },
     ])
   }, [data.data])
 
@@ -266,7 +261,16 @@ export default function Chat(data: any) {
                               </Popover>
                             </div>
                             <p className="mt-[0.12rem]">
-                              Pages: {message.pages}
+                              Pages:{" "}
+                              {Array.isArray(message.pages) &&
+                                message.pages.map((page, index) => (
+                                  <React.Fragment key={index}>
+                                    <button onClick={() => setPageNumber(page)}>
+                                      {page}
+                                    </button>
+                                    {index !== message.pages.length - 1 && ", "}
+                                  </React.Fragment>
+                                ))}
                             </p>
                           </div>
                         )}
@@ -287,7 +291,19 @@ export default function Chat(data: any) {
                               </PopoverContent>
                             </Popover>
                           </div>
-                          <p className="mt-[0.12rem]">Pages: {message.pages}</p>
+                          <p className="mt-[0.12rem]">
+                            {" "}
+                            Pages:{" "}
+                            {Array.isArray(message.pages) &&
+                              message.pages.map((page, index) => (
+                                <React.Fragment key={index}>
+                                  <button onClick={() => setPageNumber(page)}>
+                                    {page}
+                                  </button>
+                                  {index !== message.pages.length - 1 && ", "}
+                                </React.Fragment>
+                              ))}
+                          </p>
                         </div>
                       )}
                     </>

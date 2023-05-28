@@ -8,7 +8,8 @@ import { Document, Page, pdfjs } from "react-pdf"
 
 import "../styles/pdf.css"
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
-
+import { useAtom } from 'jotai';
+import { pageNumberAtom } from "@/components/shared/sharedState"
 import "react-pdf/dist/esm/Page/TextLayer.css"
 import "react-pdf/dist/esm/Page/AnnotationLayer.css"
 import { Input } from "@/components/ui/input"
@@ -24,6 +25,7 @@ const DispPDF = ({ url }: Props) => {
   const [isLoading, setIsLoading] = useState(true)
   const [input, setInput] = useState<string>(0)
   const pdfContRef = useRef(null)
+  const [pageNum] = useAtom(pageNumberAtom);
 
   useEffect(() => {
     setIsLoading(true)
@@ -46,6 +48,11 @@ const DispPDF = ({ url }: Props) => {
     }
     fetchPDF()
   }, [url])
+
+  useEffect(() => {
+    setPageNumber(pageNum)
+    setInput(pageNum.toString())
+  }, [pageNum])
 
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
