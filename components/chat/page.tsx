@@ -1,16 +1,16 @@
 "use client"
 
-import React from "react"
+import React, { useEffect } from "react"
 import { run } from "@/api/serverNext"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
 import { InfoIcon, Loader2, Send } from "lucide-react"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-
 import {
   Popover,
   PopoverContent,
@@ -27,15 +27,17 @@ type Message = {
 
 export default function Chat(data: any) {
   const [retrievalChain, setRetrievalChain] = React.useState({})
+  const [vectorStore, setVectorStore] = React.useState({} as any)
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
   const chatDivRef = React.useRef<HTMLDivElement>(null)
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false)
   const [completedTyping, setCompletedTyping] = React.useState(false)
   const [displayResponse, setDisplayResponse] = React.useState("")
+  const [modelType, setModelType] = React.useState("gpt-3.5-turbo")
 
   const model = new OpenAI({
-    modelName: "gpt-3.5-turbo",
+    modelName: modelType,
     temperature: 0.5,
     openAIApiKey: Cookie.get("key"),
   })
@@ -43,22 +45,38 @@ export default function Chat(data: any) {
   const bot = async (input: string) => {
     if (input === "" || Object.keys(retrievalChain).length === 0) return
     setIsProcessing(true)
-    {/*@ts-ignore*/}
-    const res = await retrievalChain.call({
-      query: input,
-    })
-    // console.log(res)
-    const pageNumbers = new Set()
-    res.sourceDocuments.forEach((document: any) => {
-      const pageNumber = document.metadata.page
-      pageNumbers.add(pageNumber)
-    })
-    const pagesString = Array.from(pageNumbers).join(", ")
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { id: 0, text: res.text, pages: pagesString },
-    ])
-    setIsProcessing(false)
+    try {
+      /*@ts-ignore*/
+      const res = await retrievalChain.call({
+        query: input,
+      })
+      // console.log(res)
+      const pageNumbers = new Set()
+      res.sourceDocuments.forEach((document: any) => {
+        const pageNumber = document.metadata.page
+        pageNumbers.add(pageNumber)
+      })
+      const pagesString = Array.from(pageNumbers).join(", ")
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { id: 0, text: res.text, pages: pagesString },
+      ])
+    } catch (e) {
+      console.log(e)
+      let reason = ""
+      if (modelType == "gpt-4") {
+        reason = " You likely don't have access to the GPT-4 model."
+      }
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: 0,
+          text: "An error occured. Please try again later." + reason,
+        },
+      ])
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const send = (input: string) => {
@@ -70,13 +88,31 @@ export default function Chat(data: any) {
     setInput("")
   }
 
+  useEffect(() => {
+    if (modelType === "" || Object.keys(vectorStore).length === 0) return
+    const newModel = new OpenAI({
+      modelName: modelType,
+      temperature: 0.5,
+      openAIApiKey: Cookie.get("key"),
+    })
+    console.log(newModel)
+    const chain = RetrievalQAChain.fromLLM(
+      newModel,
+      vectorStore.asRetriever(),
+      {
+        returnSourceDocuments: true,
+      }
+    )
+    setRetrievalChain(chain)
+    console.log(chain)
+  }, [modelType])
+
   React.useEffect(() => {
     setRetrievalChain({})
     if (data.data.length === 0) return
     const fetchVectorStore = async () => {
-      const result = await run(
-        data.data.pdf_url,
-      )
+      const result = await run(data.data.pdf_url)
+      setVectorStore(result)
       // console.log(result.memoryVectors)
       const chain = RetrievalQAChain.fromLLM(model, result.asRetriever(), {
         returnSourceDocuments: true,
@@ -166,13 +202,13 @@ export default function Chat(data: any) {
               </div>
               <Badge
                 variant="secondary"
-                className="ml-2 bg-green-200 bg-opacity-[0.6] dark:bg-green-900 flex items-center text-sm"
+                className="ml-2 flex items-center bg-green-200 bg-opacity-[0.6] text-sm dark:bg-green-900"
               >
                 <div>Connected</div>
               </Badge>
             </div>
             <div>
-              <ComboboxDemo></ComboboxDemo>
+              <ComboboxDemo setModelType={setModelType}></ComboboxDemo>
             </div>
           </div>
           <div
@@ -216,18 +252,25 @@ export default function Chat(data: any) {
                         )}
                       </div>
                       <>
-                      {message.pages !== undefined && message.id === 0 && (
-                        <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-                          <div className="flex">
-                          <Popover>
-                          <PopoverTrigger><InfoIcon size={13} /> </PopoverTrigger>
-                          <PopoverContent side="left" className="text-sm" >These are the pages that GPT used to answer your question in order of relevance</PopoverContent>
-                          </Popover>
+                        {message.pages !== undefined && message.id === 0 && (
+                          <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                            <div className="flex">
+                              <Popover>
+                                <PopoverTrigger>
+                                  <InfoIcon size={13} />{" "}
+                                </PopoverTrigger>
+                                <PopoverContent side="left" className="text-sm">
+                                  These are the pages that GPT used to answer
+                                  your question in order of relevance
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                            <p className="mt-[0.12rem]">
+                              Pages: {message.pages}
+                            </p>
                           </div>
-                          <p className="mt-[0.12rem]">Pages: {message.pages}</p>
-                        </div>
-                      )}
-                    </>
+                        )}
+                      </>
                     </>
                   ) : (
                     <>
@@ -235,10 +278,14 @@ export default function Chat(data: any) {
                       {message.pages !== undefined && message.id === 0 && (
                         <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
                           <div className="flex">
-                          <Popover>
-                          <PopoverTrigger><InfoIcon size={13} /> </PopoverTrigger>
-                          <PopoverContent side="left">Place content for the popover here.</PopoverContent>
-                          </Popover>
+                            <Popover>
+                              <PopoverTrigger>
+                                <InfoIcon size={13} />{" "}
+                              </PopoverTrigger>
+                              <PopoverContent side="left">
+                                Place content for the popover here.
+                              </PopoverContent>
+                            </Popover>
                           </div>
                           <p className="mt-[0.12rem]">Pages: {message.pages}</p>
                         </div>

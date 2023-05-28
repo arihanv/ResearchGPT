@@ -21,7 +21,7 @@ import {
 const frameworks = [
   {
     value: "gpt-3.5-turbo",
-    label: "GPT 3.5",
+    label: "gpt-3.5-turbo",
   },
   {
     value: "text-davinci-003",
@@ -29,21 +29,21 @@ const frameworks = [
   },
   {
     value: "gpt-4",
-    label: "GPT 4",
+    label: "gpt-4",
   },
 ]
   
 
 export function ComboboxDemo(props: any) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("chatgpt")
+  const [value, setValue] = React.useState("gpt-3.5-turbo")
 
 
 React.useEffect(() => {
-  if (props.value) {
-    props.setModel(props.value)
+  if (value) {
+    props.setModelType(value)
   }
-}, [props.value])
+}, [value])
   
 
   return (
