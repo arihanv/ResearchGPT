@@ -4,7 +4,7 @@ import React from "react"
 import { pdfDb, pdfStore } from "@/api/det"
 import { generateRandomStringWithSeed } from "@/api/utils"
 import Cookie from "js-cookie"
-import { Loader2, Upload } from "lucide-react"
+import { FileSearch, Loader2, Upload } from "lucide-react"
 
 import Thumbnail from "@/components/pdfDash/thumbnail"
 
@@ -141,7 +141,7 @@ export default function Hello({}: Props) {
     <section className="m-auto grid max-w-[1200px] items-center gap-6 pb-8 pt-6 md:py-10">
       <div className="flex flex-col items-center justify-center gap-2">
         <h1 className="text-center text-3xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
-          Your Uploads
+          Your Uploads <FileSearch size={35} className="inline-block" />
         </h1>
         <p className="text-center text-lg text-muted-foreground sm:text-xl">
           The files you have uploaded will be displayed here.

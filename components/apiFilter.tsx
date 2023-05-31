@@ -129,7 +129,7 @@ export function ApiFilter({ setData, disabled }: Props) {
           <div className="flex items-center border-b-[1px] px-3">
             <SearchIcon color="gray" size={20}></SearchIcon>
             <Input
-              className="placeholder:text-foreground-muted flex h-12 w-[90%] rounded-md rounded-b-none border-0 bg-transparent text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
+              className="placeholder:text-foreground-muted flex h-12 w-[90%] rounded-md rounded-b-none border-0 bg-transparent text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
