@@ -44,7 +44,7 @@ function cleanData(data: any) {
   return cleanedData
 }
 
-export const run = async (url: string) => {
+const run = async (url: string) => {
   const parts = url.split("/")
   const loadDeta = await checkExist(parts[parts.length - 1])
 
@@ -74,3 +74,5 @@ export const run = async (url: string) => {
     return vectorStore
   }
 }
+
+export {run}

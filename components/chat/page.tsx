@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react"
 import { run } from "@/api/serverNext"
+import { runDown } from "@/api/serverDownload"
 import { useAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
@@ -115,9 +116,16 @@ export default function Chat(data: any) {
   React.useEffect(() => {
     setLong(false)
     setRetrievalChain({})
-    if (data.data.length === 0) return
+    if (data.data !== undefined && data.data.length === 0) return
+    if (data.data === undefined) return
+    console.log(data.data)
     const fetchVectorStore = async () => {
-      const result = await run(data.data.pdf_url)
+      let result = null
+      if(data.path !== undefined) {
+        result = await runDown(data.path)
+      } else {
+        result = await run(data.data.pdf_url)
+      }
       if(result === null) {
         setLong(true)
         setRetrievalChain({"error": "too long"})
