@@ -7,6 +7,7 @@ import axios from "axios"
 import { Document, Page, pdfjs } from "react-pdf"
 
 import "../styles/pdf.css"
+import { pdfDb, pdfStore } from "@/api/det"
 import { useAtom } from "jotai"
 import { ChevronLeft, ChevronRight, Loader2, ServerCrash } from "lucide-react"
 
@@ -16,11 +17,7 @@ import "react-pdf/dist/esm/Page/TextLayer.css"
 import "react-pdf/dist/esm/Page/AnnotationLayer.css"
 import { Input } from "@/components/ui/input"
 
-type Props = {
-  url: string
-}
-
-const DispPDF = ({ url }: Props) => {
+const DispPDF = (props) => {
   const [pdfUrl, setPdfUrl] = useState(null)
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
@@ -35,13 +32,19 @@ const DispPDF = ({ url }: Props) => {
     setFailed(false)
     const fetchPDF = async () => {
       try {
-        const response = await axios.get(
-          "https://vfhacks-1-b9920186.deta.app/pdf?url=" + url,
-          {
-            responseType: "arraybuffer",
-          }
-        )
-        const pdfData = new Blob([response.data], { type: "application/pdf" })
+        let response = null
+        if (props.type == "download") {
+          response = await pdfStore.get(`${props.id}/${props.num}`)
+        } else {
+          response = await axios.get(
+            "https://vfhacks-1-b9920186.deta.app/pdf?url=" + props.url,
+            {
+              responseType: "arraybuffer",
+            }
+          )
+          response = response.data
+        }
+        const pdfData = new Blob([response], { type: "application/pdf" })
         const pdfUrl = URL.createObjectURL(pdfData)
         setPdfUrl(pdfUrl)
       } catch (error) {
@@ -53,7 +56,7 @@ const DispPDF = ({ url }: Props) => {
       }
     }
     fetchPDF()
-  }, [url])
+  }, [props.url])
 
   useEffect(() => {
     setPageNumber(pageNum)
@@ -131,7 +134,6 @@ const DispPDF = ({ url }: Props) => {
     )
   }
 
-
   if (failed) {
     return (
       <div
@@ -140,11 +142,13 @@ const DispPDF = ({ url }: Props) => {
         className="h-[900px] w-[695px] bg-gray-100 dark:bg-gray-900"
       >
         <div className="flex h-[900px] w-[695px] items-center justify-center gap-2 bg-gray-100 font-medium text-gray-400 dark:bg-gray-900 dark:text-gray-500">
-          <div className="max-w-[300px] text-center gap-2 flex flex-col items-center">
-          <ServerCrash size={30}/>
-          <div className="font-semibold">Failed to load PDF</div>
-          <p className="text-sm">PDF retrieval error: Server timeout (exceeded 20-second limit)</p>
-          <p className="text-sm">Maybe try again later?</p>
+          <div className="flex max-w-[300px] flex-col items-center gap-2 text-center">
+            <ServerCrash size={30} />
+            <div className="font-semibold">Failed to load PDF</div>
+            <p className="text-sm">
+              PDF retrieval error: Server timeout (exceeded 20-second limit)
+            </p>
+            <p className="text-sm">Maybe try again later?</p>
           </div>
         </div>
       </div>

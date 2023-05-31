@@ -14,9 +14,9 @@ export default function Footer({}: Props) {
           Arihan Varanasi
         </a>
       </div>
-      <div className="w-full text-start text-xs">
+      {/* <div className="w-full text-start text-xs">
         Thank you to arXiv for use of its open access interoperability.
-      </div>
+      </div> */}
     </div>
   )
 }
