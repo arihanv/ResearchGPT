@@ -14,7 +14,7 @@ export default function Hello({}: Props) {
   const [key, setKey] = React.useState("")
   const [loading, setLoading] = React.useState(true)
   const [docInfo, setDocInfo] = React.useState<any>({})
-  const fileInputRef = React.useRef(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = React.useState(false)
 
   async function test() {
@@ -27,77 +27,80 @@ export default function Hello({}: Props) {
   const handleFileChange = async (event: any) => {
     if (key == "") return
     const res = await pdfDb.get(key)
-    if (res.numDocs > 2) {
-      console.log("too many docs")
-      return
+    if (res != null) {
+      if (res.numDocs != null && (res.numDocs as number) > 2) {
+        console.log("too many docs")
+        return
+      }
     }
     setUploading(true)
     const file = event.target.files[0]
     const maxSize = 20 * 1024 * 1024 // 20 MB in bytes
+    if (res != null) {
+      if (file && file.size <= maxSize && file.type === "application/pdf") {
+        const reader = new FileReader()
+        // const num = res.numDocs
+        // const docNum = `docs${num}`
 
-    if (file && file.size <= maxSize && file.type === "application/pdf") {
-      const reader = new FileReader()
-      // const num = res.numDocs
-      // const docNum = `docs${num}`
+        let missingDocNum = null
 
-      let missingDocNum = null
-
-      for (let i = 0; i <= 2; i++) {
-        const docNum = `docs${i}`
-        if (!(docNum in res)) {
-          missingDocNum = i
-          break
-        }
-      }
-      console.log(missingDocNum)
-
-      const docNum = `docs${missingDocNum}`
-
-      reader.onload = async () => {
-        const fileData = reader.result
-
-        if (typeof fileData === "string") {
-          const buffer = Buffer.from(fileData, "binary")
-          console.log("uploading file, please wait...")
-          const driveFile = await pdfStore.put(`${key}/${docNum}.pdf`, {
-            data: buffer,
-          })
-          const updatedDoc = {
-            [`${docNum}`]: {
-              name: "Sample file",
-              path: `${key}/${docNum}.pdf`,
-            },
-            numDocs: pdfDb.util.increment(1),
+        for (let i = 0; i <= 2; i++) {
+          const docNum = `docs${i}`
+          if (!(docNum in res)) {
+            missingDocNum = i
+            break
           }
-          await pdfDb.update(updatedDoc, key)
-          console.log("File uploaded:", driveFile)
-          // setUploading(false)
-          window.location.href = `/myfiles/${key}/${docNum}.pdf`
-        } else if (fileData instanceof ArrayBuffer) {
-          const uint8Array = new Uint8Array(fileData)
-          console.log("uploading file, please wait...")
-          const driveFile = await pdfStore.put(`${key}/${docNum}.pdf`, {
-            data: uint8Array,
-          })
-          const updatedDoc = {
-            [`${docNum}`]: {
-              name: "Sample file",
-              path: `${key}/${docNum}.pdf`,
-            },
-            numDocs: pdfDb.util.increment(1),
-          }
-          await pdfDb.update(updatedDoc, key)
-          console.log("File uploaded:", driveFile)
-          // setUploading(false)
-          window.location.href = `/myfiles/${key}/${docNum}.pdf`
-        } else {
-          console.log("Invalid file data format")
-          // setUploading(false)
         }
+        console.log(missingDocNum)
+
+        const docNum = `docs${missingDocNum}`
+
+        reader.onload = async () => {
+          const fileData = reader.result
+
+          if (typeof fileData === "string") {
+            const buffer = Buffer.from(fileData, "binary")
+            console.log("uploading file, please wait...")
+            const driveFile = await pdfStore.put(`${key}/${docNum}.pdf`, {
+              data: buffer,
+            })
+            const updatedDoc = {
+              [`${docNum}`]: {
+                name: "Sample file",
+                path: `${key}/${docNum}.pdf`,
+              },
+              numDocs: pdfDb.util.increment(1),
+            }
+            await pdfDb.update(updatedDoc, key)
+            console.log("File uploaded:", driveFile)
+            // setUploading(false)
+            window.location.href = `/myfiles/${key}/${docNum}.pdf`
+          } else if (fileData instanceof ArrayBuffer) {
+            const uint8Array = new Uint8Array(fileData)
+            console.log("uploading file, please wait...")
+            const driveFile = await pdfStore.put(`${key}/${docNum}.pdf`, {
+              data: uint8Array,
+            })
+            const updatedDoc = {
+              [`${docNum}`]: {
+                name: "Sample file",
+                path: `${key}/${docNum}.pdf`,
+              },
+              numDocs: pdfDb.util.increment(1),
+            }
+            await pdfDb.update(updatedDoc, key)
+            console.log("File uploaded:", driveFile)
+            // setUploading(false)
+            window.location.href = `/myfiles/${key}/${docNum}.pdf`
+          } else {
+            console.log("Invalid file data format")
+            // setUploading(false)
+          }
+        }
+        reader.readAsArrayBuffer(file)
+      } else {
+        console.log("Invalid file")
       }
-      reader.readAsArrayBuffer(file)
-    } else {
-      console.log("Invalid file")
     }
   }
 
@@ -106,7 +109,7 @@ export default function Hello({}: Props) {
   }, [])
 
   React.useEffect(() => {
-    if (!(Cookie.get("key"))) {
+    if (!Cookie.get("key")) {
       window.location.href = "/auth"
     }
   }, [])
@@ -130,9 +133,10 @@ export default function Hello({}: Props) {
   }, [key])
 
   const handleButtonClick = () => {
-    fileInputRef.current.click()
-  }
-
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
   return (
     <section className="m-auto grid max-w-[1200px] items-center gap-6 pb-8 pt-6 md:py-10">
       <div className="flex flex-col items-center justify-center gap-2">
