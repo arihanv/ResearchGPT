@@ -32,7 +32,7 @@ yarn-error.log*
 # turbo
 .turbo
 
-api/
+testData/
 
 app_secrets.py
 __pycache__
