@@ -6,6 +6,16 @@ import { generateRandomStringWithSeed } from "@/api/utils"
 import Cookie from "js-cookie"
 import { FileSearch, Loader2, Upload } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import Thumbnail from "@/components/pdfDash/thumbnail"
 
 type Props = {}
@@ -14,8 +24,11 @@ export default function Hello({}: Props) {
   const [key, setKey] = React.useState("")
   const [loading, setLoading] = React.useState(true)
   const [docInfo, setDocInfo] = React.useState<any>({})
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = React.useState(false)
+  const [modalOpen, setModalOpen] = React.useState(false)
+  const [name, setInput] = React.useState<string>("")
+  const [fileUp, setFile] = React.useState<File | null>(null)
 
   async function test() {
     let result = await pdfStore.list()
@@ -24,8 +37,12 @@ export default function Hello({}: Props) {
     setKey(generateRandomStringWithSeed(apikey as string, apikey as string, 5))
   }
 
-  const handleFileChange = async (event: any) => {
+  const handleFileChange = async (name: string) => {
     if (key == "") return
+    if (name == "") return
+    setModalOpen(false)
+    const fileName = name
+    console.log(fileUp)
     const res = await pdfDb.get(key)
     if (res != null) {
       if (res.numDocs != null && (res.numDocs as number) > 2) {
@@ -34,14 +51,11 @@ export default function Hello({}: Props) {
       }
     }
     setUploading(true)
-    const file = event.target.files[0]
+    const file = fileUp
     const maxSize = 20 * 1024 * 1024 // 20 MB in bytes
     if (res != null) {
       if (file && file.size <= maxSize && file.type === "application/pdf") {
         const reader = new FileReader()
-        // const num = res.numDocs
-        // const docNum = `docs${num}`
-
         let missingDocNum = null
 
         for (let i = 0; i <= 2; i++) {
@@ -66,7 +80,7 @@ export default function Hello({}: Props) {
             })
             const updatedDoc = {
               [`${docNum}`]: {
-                name: "Sample file",
+                name: fileName,
                 path: `${key}/${docNum}.pdf`,
               },
               numDocs: pdfDb.util.increment(1),
@@ -83,7 +97,7 @@ export default function Hello({}: Props) {
             })
             const updatedDoc = {
               [`${docNum}`]: {
-                name: "Sample file",
+                name: fileName,
                 path: `${key}/${docNum}.pdf`,
               },
               numDocs: pdfDb.util.increment(1),
@@ -134,9 +148,16 @@ export default function Hello({}: Props) {
 
   const handleButtonClick = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click();
+      fileInputRef.current.click()
     }
-  };
+  }
+
+  const handleFileUpload = (event: any) => {
+    setModalOpen(true)
+    setFile(event.target.files[0])
+    console.log(event.target.files[0])
+  }
+
   return (
     <section className="m-auto grid max-w-[1200px] items-center gap-6 pb-8 pt-6 md:py-10">
       <div className="flex flex-col items-center justify-center gap-2">
@@ -167,28 +188,50 @@ export default function Hello({}: Props) {
               }
               return null
             })}
-
-            {/* {Object.keys(docInfo).length - 2 < 3 && ( */}
             {Object.keys(docInfo).length - 2 < 3 && (
-              <div
-                onClick={handleButtonClick}
-                className="flex h-[335px] w-[225px] cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-500 bg-gray-400 bg-opacity-40 dark:bg-gray-800"
-              >
-                {uploading ? (
-                  <div className="m-auto animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
-                    <Loader2 size={30} />
+              <Dialog open={modalOpen}>
+                <DialogTrigger asChild>
+                  <div
+                    onClick={handleButtonClick}
+                    className="flex h-[335px] w-[225px] cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-500 bg-gray-400 bg-opacity-40 dark:bg-gray-800"
+                  >
+                    {uploading ? (
+                      <div className="m-auto animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
+                        <Loader2 size={30} />
+                      </div>
+                    ) : (
+                      <Upload />
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf"
+                      style={{ display: "none" }}
+                      onChange={handleFileUpload}
+                    />
                   </div>
-                ) : (
-                  <Upload />
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
-              </div>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Enter a name for the file</DialogTitle>
+                    <DialogDescription>
+                      <Input
+                        className="focus-visible:ring-0"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter"}
+                      />
+                      <Button
+                        className="mt-3"
+                        onClick={() => handleFileChange(name)}
+                      >
+                        Submit
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
             )}
           </div>
         ) : (

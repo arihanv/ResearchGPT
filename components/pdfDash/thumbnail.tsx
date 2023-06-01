@@ -80,8 +80,7 @@ const Thumbnail = (props: any) => {
             )}
           </div>
           <div className="overflow-hidden text-ellipsis whitespace-nowrap rounded-b-lg border-t border-t-gray-800 bg-white p-1 font-medium dark:bg-gray-600">
-            Drag Your GAN: Interactive Point-based Manipulation on the
-            Generative Image Manifold {props.name}
+            {props.name}
           </div>
         </Link>
       </div>
