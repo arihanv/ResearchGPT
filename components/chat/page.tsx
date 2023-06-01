@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useEffect } from "react"
-import { run } from "@/api/serverNext"
 import { runDown } from "@/api/serverDownload"
+import { run } from "@/api/serverNext"
 import { useAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
@@ -54,8 +54,9 @@ export default function Chat(data: any) {
     try {
       /*@ts-ignore*/
       const res = await retrievalChain.call({
-        query: `Answer the question based on the context from the research paper. Question: "${input}"`,
+        query: `Answer the question based on the context. Question: "${input}"`,
       })
+      console.log(res)
       // console.log(res)
       const pageNumbers = new Set()
       res.sourceDocuments.forEach((document: any) => {
@@ -106,6 +107,11 @@ export default function Chat(data: any) {
       newModel,
       vectorStore.asRetriever(),
       {
+        inputKey: ` Paper Info:
+        Summary: ${data.data.summary}
+        Title: ${data.data.title}
+        Authors: ${data.data.authors.map((obj) => obj.name).join(", ")}
+      `,
         returnSourceDocuments: true,
       }
     )
@@ -121,14 +127,14 @@ export default function Chat(data: any) {
     console.log(data.data)
     const fetchVectorStore = async () => {
       let result = null
-      if(data.path !== undefined) {
+      if (data.path !== undefined) {
         result = await runDown(data.path)
       } else {
         result = await run(data.data.pdf_url)
       }
-      if(result === null) {
+      if (result === null) {
         setLong(true)
-        setRetrievalChain({"error": "too long"})
+        setRetrievalChain({ error: "too long" })
         return
       }
       setVectorStore(result)
@@ -139,14 +145,13 @@ export default function Chat(data: any) {
       // console.log(chain)
       setRetrievalChain(chain)
     }
-    try{
-    fetchVectorStore()
-    } catch(e){
+    try {
+      fetchVectorStore()
+    } catch (e) {
       console.log(e)
       setFailed(true)
     }
   }, [data.data])
-
 
   function resetMessages() {
     setMessages([
@@ -159,7 +164,7 @@ export default function Chat(data: any) {
   }
 
   React.useEffect(() => {
-   resetMessages()
+    resetMessages()
   }, [data.data])
 
   React.useEffect(() => {
@@ -207,12 +212,14 @@ export default function Chat(data: any) {
   if (failed) {
     return (
       <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
-        <div className="max-w-[200px] text-center gap-2 flex flex-col items-center">
-          <ServerCrash size={30}/>
+        <div className="flex max-w-[200px] flex-col items-center gap-2 text-center">
+          <ServerCrash size={30} />
           <div className="font-semibold">Failed to Index</div>
-          <p className="text-sm">Error: Server timeout (exceeded 20-second limit)</p>
+          <p className="text-sm">
+            Error: Server timeout (exceeded 20-second limit)
+          </p>
           <p className="text-sm">Maybe try again later?</p>
-          </div>
+        </div>
       </div>
     )
   }
@@ -220,11 +227,11 @@ export default function Chat(data: any) {
   if (long) {
     return (
       <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
-        <div className="max-w-[150px] text-center gap-2 flex flex-col items-center">
-          <ServerCrash size={30}/>
+        <div className="flex max-w-[150px] flex-col items-center gap-2 text-center">
+          <ServerCrash size={30} />
           <div className="font-semibold">Too Large</div>
           <p className="text-sm">Error: Paper is more than 20 pages</p>
-          </div>
+        </div>
       </div>
     )
   }
@@ -315,7 +322,10 @@ export default function Chat(data: any) {
                               {Array.isArray(message.pages) &&
                                 message.pages.map((page, index) => (
                                   <React.Fragment key={index}>
-                                    <button className="italic underline font-semibold" onClick={() => setPageNumber(page)}>
+                                    <button
+                                      className="font-semibold italic underline"
+                                      onClick={() => setPageNumber(page)}
+                                    >
                                       {page}
                                     </button>
                                     {index !==
@@ -349,12 +359,15 @@ export default function Chat(data: any) {
                             {Array.isArray(message.pages) &&
                               message.pages.map((page, index) => (
                                 <React.Fragment key={index}>
-                                  <button className="italic underline font-semibold" onClick={() => setPageNumber(page)}>
+                                  <button
+                                    className="font-semibold italic underline"
+                                    onClick={() => setPageNumber(page)}
+                                  >
                                     {page}
                                   </button>
                                   {index !==
-                                    (message.pages as Array<any>).length -
-                                      1 && ", "}
+                                    (message.pages as Array<any>).length - 1 &&
+                                    ", "}
                                 </React.Fragment>
                               ))}
                           </p>
@@ -388,7 +401,10 @@ export default function Chat(data: any) {
             <Button className="flex gap-3 rounded-l-none" type="submit">
               <Send onClick={() => send(input)}></Send>
             </Button>
-            <Button className="flex ml-2 gap-3 bg-red-400 bg-opacity-100" type="submit">
+            <Button
+              className="ml-2 flex gap-3 bg-red-400 bg-opacity-100"
+              type="submit"
+            >
               <Trash onClick={() => resetMessages()}></Trash>
             </Button>
           </div>
