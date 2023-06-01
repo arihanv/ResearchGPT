@@ -54,7 +54,7 @@ export default function Chat(data: any) {
     try {
       /*@ts-ignore*/
       const res = await retrievalChain.call({
-        query: `Answer the question based on the context. Question: "${input}"`,
+        query: `Question: "${input}"`,
       })
       console.log(res)
       // console.log(res)
@@ -103,7 +103,17 @@ export default function Chat(data: any) {
       openAIApiKey: Cookie.get("key"),
     })
     console.log(newModel)
-    const chain = RetrievalQAChain.fromLLM(
+    let chain = null;
+    if(data.data.summary === undefined){
+      chain = RetrievalQAChain.fromLLM(
+        newModel,
+        vectorStore.asRetriever(),
+        {
+          returnSourceDocuments: true,
+        }
+      )
+    } else {
+    chain = RetrievalQAChain.fromLLM(
       newModel,
       vectorStore.asRetriever(),
       {
@@ -115,6 +125,7 @@ export default function Chat(data: any) {
         returnSourceDocuments: true,
       }
     )
+    }
     setRetrievalChain(chain)
     console.log(chain)
   }, [modelType])
