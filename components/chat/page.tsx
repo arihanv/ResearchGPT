@@ -165,10 +165,11 @@ export default function Chat(data: any) {
   }, [data.data])
 
   function resetMessages() {
+    const titleText = !data.path ? `Ask me about "${data.data.title}"` : 'Ask me about this document';
     setMessages([
       {
         id: 0,
-        text: `Ask me about "${data.data.title}"`,
+        text: titleText,
         // pages: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
       },
     ])
@@ -212,7 +213,7 @@ export default function Chat(data: any) {
 
   if (Object.keys(retrievalChain).length === 0) {
     return (
-      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`} >
         <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
           <Loader2 size={30} />
         </div>
@@ -222,7 +223,7 @@ export default function Chat(data: any) {
   }
   if (failed) {
     return (
-      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
         <div className="flex max-w-[200px] flex-col items-center gap-2 text-center">
           <ServerCrash size={30} />
           <div className="font-semibold">Failed to Index</div>
@@ -237,7 +238,7 @@ export default function Chat(data: any) {
 
   if (long) {
     return (
-      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
         <div className="flex max-w-[150px] flex-col items-center gap-2 text-center">
           <ServerCrash size={30} />
           <div className="font-semibold">Too Large</div>
@@ -276,7 +277,7 @@ export default function Chat(data: any) {
           </div>
           <div
             ref={chatDivRef}
-            className="h-[400px] overflow-y-scroll border-x border-b border-gray-700 p-2"
+            className={`overflow-y-scroll border-x border-b border-gray-700 p-2 ${data.path ? 'h-[575px]' : 'h-[400px]'}`} 
           >
             {messages.map((message, index) => (
               <div
