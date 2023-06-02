@@ -120,7 +120,7 @@ export default function Chat(data: any) {
         inputKey: ` Paper Info:
         Summary: ${data.data.summary}
         Title: ${data.data.title}
-        Authors: ${data.data.authors.map((obj) => obj.name).join(", ")}
+        Authors:  ${data.data.authors.map((obj: { name: string }) => obj.name).join(", ")}
       `,
         returnSourceDocuments: true,
       }
