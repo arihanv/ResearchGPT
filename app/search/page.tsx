@@ -34,7 +34,7 @@ export default function IndexPage() {
         <div className="flex h-[769px] items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900">
           <div className="flex flex-col gap-5 text-gray-400 dark:text-gray-600">
             <div className="flex justify-center">
-              <div className="flex w-fit justify-center rounded-xl bg-gray-300 px-3 py-0.5 text-sm font-medium text-gray-500 drop-shadow-md">
+              <div className="flex w-fit justify-center rounded-xl bg-gray-300 dark:bg-gray-800 px-3 py-0.5 text-sm font-medium text-gray-500 drop-shadow-md">
                 Search For A Paper To Get Started
               </div>
             </div>
