@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useEffect } from "react"
-import { run } from "@/api/serverNext"
 import { runDown } from "@/api/serverDownload"
+import { run } from "@/api/serverNext"
 import { useAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
@@ -54,8 +54,9 @@ export default function Chat(data: any) {
     try {
       /*@ts-ignore*/
       const res = await retrievalChain.call({
-        query: `Answer the question based on the context from the research paper. Question: "${input}"`,
+        query: `Question: "${input}"`,
       })
+      console.log(res)
       // console.log(res)
       const pageNumbers = new Set()
       res.sourceDocuments.forEach((document: any) => {
@@ -102,13 +103,29 @@ export default function Chat(data: any) {
       openAIApiKey: Cookie.get("key"),
     })
     console.log(newModel)
-    const chain = RetrievalQAChain.fromLLM(
+    let chain = null;
+    if(data.data.summary === undefined){
+      chain = RetrievalQAChain.fromLLM(
+        newModel,
+        vectorStore.asRetriever(),
+        {
+          returnSourceDocuments: true,
+        }
+      )
+    } else {
+    chain = RetrievalQAChain.fromLLM(
       newModel,
       vectorStore.asRetriever(),
       {
+        inputKey: ` Paper Info:
+        Summary: ${data.data.summary}
+        Title: ${data.data.title}
+        Authors: ${data.data.authors.map((obj) => obj.name).join(", ")}
+      `,
         returnSourceDocuments: true,
       }
     )
+    }
     setRetrievalChain(chain)
     console.log(chain)
   }, [modelType])
@@ -121,14 +138,14 @@ export default function Chat(data: any) {
     console.log(data.data)
     const fetchVectorStore = async () => {
       let result = null
-      if(data.path !== undefined) {
+      if (data.path !== undefined) {
         result = await runDown(data.path)
       } else {
         result = await run(data.data.pdf_url)
       }
-      if(result === null) {
+      if (result === null) {
         setLong(true)
-        setRetrievalChain({"error": "too long"})
+        setRetrievalChain({ error: "too long" })
         return
       }
       setVectorStore(result)
@@ -139,27 +156,27 @@ export default function Chat(data: any) {
       // console.log(chain)
       setRetrievalChain(chain)
     }
-    try{
-    fetchVectorStore()
-    } catch(e){
+    try {
+      fetchVectorStore()
+    } catch (e) {
       console.log(e)
       setFailed(true)
     }
   }, [data.data])
 
-
   function resetMessages() {
+    const titleText = !data.path ? `Ask me about "${data.data.title}"` : 'Ask me about this document';
     setMessages([
       {
         id: 0,
-        text: `Ask me about "${data.data.title}"`,
+        text: titleText,
         // pages: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
       },
     ])
   }
 
   React.useEffect(() => {
-   resetMessages()
+    resetMessages()
   }, [data.data])
 
   React.useEffect(() => {
@@ -196,7 +213,7 @@ export default function Chat(data: any) {
 
   if (Object.keys(retrievalChain).length === 0) {
     return (
-      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
+      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`} >
         <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
           <Loader2 size={30} />
         </div>
@@ -206,25 +223,27 @@ export default function Chat(data: any) {
   }
   if (failed) {
     return (
-      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
-        <div className="max-w-[200px] text-center gap-2 flex flex-col items-center">
-          <ServerCrash size={30}/>
+      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
+        <div className="flex max-w-[200px] flex-col items-center gap-2 text-center">
+          <ServerCrash size={30} />
           <div className="font-semibold">Failed to Index</div>
-          <p className="text-sm">Error: Server timeout (exceeded 20-second limit)</p>
+          <p className="text-sm">
+            Error: Server timeout (exceeded 20-second limit)
+          </p>
           <p className="text-sm">Maybe try again later?</p>
-          </div>
+        </div>
       </div>
     )
   }
 
   if (long) {
     return (
-      <div className="flex h-[525px] max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ">
-        <div className="max-w-[150px] text-center gap-2 flex flex-col items-center">
-          <ServerCrash size={30}/>
+      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
+        <div className="flex max-w-[150px] flex-col items-center gap-2 text-center">
+          <ServerCrash size={30} />
           <div className="font-semibold">Too Large</div>
           <p className="text-sm">Error: Paper is more than 20 pages</p>
-          </div>
+        </div>
       </div>
     )
   }
@@ -258,7 +277,7 @@ export default function Chat(data: any) {
           </div>
           <div
             ref={chatDivRef}
-            className="h-[400px] overflow-y-scroll border-x border-b border-gray-700 p-2"
+            className={`overflow-y-scroll border-x border-b border-gray-700 p-2 ${data.path ? 'h-[575px]' : 'h-[400px]'}`} 
           >
             {messages.map((message, index) => (
               <div
@@ -315,7 +334,10 @@ export default function Chat(data: any) {
                               {Array.isArray(message.pages) &&
                                 message.pages.map((page, index) => (
                                   <React.Fragment key={index}>
-                                    <button className="italic underline font-semibold" onClick={() => setPageNumber(page)}>
+                                    <button
+                                      className="font-semibold italic underline"
+                                      onClick={() => setPageNumber(page)}
+                                    >
                                       {page}
                                     </button>
                                     {index !==
@@ -349,12 +371,15 @@ export default function Chat(data: any) {
                             {Array.isArray(message.pages) &&
                               message.pages.map((page, index) => (
                                 <React.Fragment key={index}>
-                                  <button className="italic underline font-semibold" onClick={() => setPageNumber(page)}>
+                                  <button
+                                    className="font-semibold italic underline"
+                                    onClick={() => setPageNumber(page)}
+                                  >
                                     {page}
                                   </button>
                                   {index !==
-                                    (message.pages as Array<any>).length -
-                                      1 && ", "}
+                                    (message.pages as Array<any>).length - 1 &&
+                                    ", "}
                                 </React.Fragment>
                               ))}
                           </p>
@@ -388,7 +413,10 @@ export default function Chat(data: any) {
             <Button className="flex gap-3 rounded-l-none" type="submit">
               <Send onClick={() => send(input)}></Send>
             </Button>
-            <Button className="flex ml-2 gap-3 bg-red-400 bg-opacity-100" type="submit">
+            <Button
+              className="ml-2 flex gap-3 bg-red-400 bg-opacity-100"
+              type="submit"
+            >
               <Trash onClick={() => resetMessages()}></Trash>
             </Button>
           </div>

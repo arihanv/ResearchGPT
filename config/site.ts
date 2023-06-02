@@ -6,8 +6,8 @@ export const siteConfig = {
     "Welcome to my first Next JS Website",
   mainNav: [
     {
-      title: "Home",
-      href: "/",
+      title: "Search",
+      href: "/search",
     },
     {
       title: "Files",
