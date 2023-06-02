@@ -133,7 +133,7 @@ export function ApiFilter({ setData, disabled }: Props) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type a command or search..."
+              placeholder="Enter a search term, paper url, or paper id"
             />
             {/* <Select defaultValue="relevance">
               <SelectTrigger className="mr-8 w-[150px]">
@@ -180,7 +180,7 @@ export function ApiFilter({ setData, disabled }: Props) {
         </CommandDialog>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-10 rounded-xl p-0">
+            <Button variant="outline" disabled className="w-10 rounded-xl p-0">
               <Settings2 className="h-4 w-4" />
               <span className="sr-only">Open popover</span>
             </Button>

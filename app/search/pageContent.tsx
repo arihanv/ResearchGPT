@@ -2,9 +2,9 @@
 
 import { Loader2 } from "lucide-react"
 import { ApiFilter } from "@/components/apiFilter"
-import DispPDF from "./DispPDF"
-import Chat from "../components/chat/page"
-import InfoBox from "./infoBox"
+import DispPDF from "../DispPDF"
+import Chat from "@/components/chat/page"
+import InfoBox from "../infoBox"
 
 
 export default function PageContent(data:any) {
