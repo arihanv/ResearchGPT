@@ -54,29 +54,6 @@ export default function IndexPage() {
           </div>
         </div>
       </div>
-
-      {/* <div className="relative grid grid-cols-1 grid-rows-1">
-          <h1 className="absolute bottom-0 left-0 right-0 top-0 z-10 m-auto flex flex-col items-center justify-center gap-2 whitespace-nowrap text-[150px] font-extrabold leading-tight tracking-tighter">
-            <div className="w-fit rounded-sm px-4 py-0.5 backdrop-blur-lg  ">
-              Koios GPT
-            </div>
-          </h1>
-          <div className="dark:invert min-h-[550px]">
-            <Animation />
-          </div>
-        </div> */}
-      {/* <p className="max-w-[700px] text-lg text-muted-foreground">
-          Accessible and customizable components that you can copy and paste
-          into your apps. Free. Open Source. And Next.js 13 Ready.
-        </p> */}
-      {/* <div className="flex items-center justify-between gap-2 w-full px-1">
-          <div>
-            Hello
-          </div>
-          <div>
-            hello
-          </div>
-      </div> */}
     </section>
   )
 }

@@ -7,6 +7,7 @@ import { useAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
+import { BufferWindowMemory } from "langchain/memory"
 import { Info, Loader2, Send, ServerCrash, Trash } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -87,6 +88,7 @@ export default function Chat(data: any) {
   }
 
   const send = (input: string) => {
+    if (input === "") return
     if (isProcessing) {
       return
     }
@@ -96,35 +98,34 @@ export default function Chat(data: any) {
   }
 
   useEffect(() => {
+    console.log("line 99", modelType)
     if (modelType === "" || Object.keys(vectorStore).length === 0) return
     const newModel = new OpenAI({
       modelName: modelType,
       temperature: 0.5,
       openAIApiKey: Cookie.get("key"),
     })
+    console.log("New model")
     console.log(newModel)
-    let chain = null;
-    if(data.data.summary === undefined){
-      chain = RetrievalQAChain.fromLLM(
-        newModel,
-        vectorStore.asRetriever(),
-        {
-          returnSourceDocuments: true,
-        }
-      )
+    let chain = null
+    console.log("data.data.summary")
+    if (data.data.summary === undefined) {
+      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(), {
+        returnSourceDocuments: true,
+      })
     } else {
-    chain = RetrievalQAChain.fromLLM(
-      newModel,
-      vectorStore.asRetriever(),
-      {
+      console.log("chain making.summary")
+      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(), {
         inputKey: ` Paper Info:
         Summary: ${data.data.summary}
         Title: ${data.data.title}
-        Authors:  ${data.data.authors.map((obj: { name: string }) => obj.name).join(", ")}
+        Authors:  ${data.data.authors
+          .map((obj: { name: string }) => obj.name)
+          .join(", ")}
       `,
         returnSourceDocuments: true,
-      }
-    )
+      })
+      // chain.memory = new BufferWindowMemory({ k: 1})
     }
     setRetrievalChain(chain)
     console.log(chain)
@@ -150,10 +151,17 @@ export default function Chat(data: any) {
       }
       setVectorStore(result)
       // console.log(result.memoryVectors)
+      if (data.data.summary === undefined) {
+        console.error("no summary")
+      }
       const chain = RetrievalQAChain.fromLLM(model, result.asRetriever(), {
         returnSourceDocuments: true,
+        inputKey: "query",
       })
-      // console.log(chain)
+
+      // chain.memory = "title is cool"
+
+      console.log(chain)
       setRetrievalChain(chain)
     }
     try {
@@ -165,7 +173,9 @@ export default function Chat(data: any) {
   }, [data.data])
 
   function resetMessages() {
-    const titleText = !data.path ? `Ask me about "${data.data.title}"` : 'Ask me about this document';
+    const titleText = !data.path
+      ? `Ask me about "${data.data.title}"`
+      : "Ask me about this document"
     setMessages([
       {
         id: 0,
@@ -213,7 +223,11 @@ export default function Chat(data: any) {
 
   if (Object.keys(retrievalChain).length === 0) {
     return (
-      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`} >
+      <div
+        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+          data.data.pdf_url ? "h-700px" : "h-525px"
+        }`}
+      >
         <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
           <Loader2 size={30} />
         </div>
@@ -223,7 +237,11 @@ export default function Chat(data: any) {
   }
   if (failed) {
     return (
-      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
+      <div
+        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+          data.data.pdf_url ? "h-700px" : "h-525px"
+        }`}
+      >
         <div className="flex max-w-[200px] flex-col items-center gap-2 text-center">
           <ServerCrash size={30} />
           <div className="font-semibold">Failed to Index</div>
@@ -238,7 +256,11 @@ export default function Chat(data: any) {
 
   if (long) {
     return (
-      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
+      <div
+        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+          data.data.pdf_url ? "h-700px" : "h-525px"
+        }`}
+      >
         <div className="flex max-w-[150px] flex-col items-center gap-2 text-center">
           <ServerCrash size={30} />
           <div className="font-semibold">Too Large</div>
@@ -277,7 +299,9 @@ export default function Chat(data: any) {
           </div>
           <div
             ref={chatDivRef}
-            className={`overflow-y-scroll border-x border-b border-gray-700 p-2 ${data.path ? 'h-[575px]' : 'h-[400px]'}`} 
+            className={`overflow-y-scroll border-x border-b border-gray-700 p-2 ${
+              data.path ? "h-[575px]" : "h-[400px]"
+            }`}
           >
             {messages.map((message, index) => (
               <div
@@ -410,14 +434,19 @@ export default function Chat(data: any) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send(input)}
             />
-            <Button className="flex gap-3 rounded-l-none" type="submit">
-              <Send onClick={() => send(input)}></Send>
+            <Button
+              className="flex gap-3 rounded-l-none"
+              onClick={() => send(input)}
+              type="submit"
+            >
+              <Send></Send>
             </Button>
             <Button
               className="ml-2 flex gap-3 bg-red-400 bg-opacity-100"
               type="submit"
+              onClick={() => resetMessages()}
             >
-              <Trash onClick={() => resetMessages()}></Trash>
+              <Trash></Trash>
             </Button>
           </div>
         </div>

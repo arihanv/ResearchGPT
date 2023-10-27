@@ -1,14 +1,19 @@
 import Cookie from "js-cookie"
 import { OpenAIEmbeddings } from "langchain/embeddings/openai"
-import {
-  MemoryVectorStore,
-} from "langchain/vectorstores/memory"
+import { MemoryVectorStore } from "langchain/vectorstores/memory"
+
 import drive from "./det"
 
+function convertURL(url: string) {
+  url = url.replace(/^http:/, 'https:');
+  url += '.pdf';
+  return url;
+}
+
 async function getData(query: string) {
-  const url = `https://test-1-z9723294.deta.app/splits?url=${encodeURIComponent(
-    query
-  )}`
+  console.log("Query:",query)
+  const url = `https://test-1-z9723294.deta.app/splits?url=${convertURL(query)}`
+  console.log("Url:",url)
 
   const res = await fetch(url)
 
@@ -36,11 +41,15 @@ async function checkExist(id: string) {
 }
 
 function cleanData(data: any) {
-  const cleanedData = data.map((obj:any) => {
-    const cleanedContent = obj.content.replace(/\n/g, "");
-    const encodedContent = cleanedContent.replace(/[^\x00-\x7F]/g, "");
-    return { content: encodedContent, embedding: obj.embedding, metadata: obj.metadata};
-  });
+  const cleanedData = data.map((obj: any) => {
+    const cleanedContent = obj.content.replace(/\n/g, "")
+    const encodedContent = cleanedContent.replace(/[^\x00-\x7F]/g, "")
+    return {
+      content: encodedContent,
+      embedding: obj.embedding,
+      metadata: obj.metadata,
+    }
+  })
   return cleanedData
 }
 
@@ -60,7 +69,7 @@ const run = async (url: string) => {
   } else {
     console.log("Does not exist")
     const response = await getData(url)
-    if(Object.keys(response).length === 0) return null
+    if (Object.keys(response).length === 0) return null
     const vectorStore = await MemoryVectorStore.fromTexts(
       response.text,
       response.meta,
@@ -75,4 +84,4 @@ const run = async (url: string) => {
   }
 }
 
-export {run}
+export { run }

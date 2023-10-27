@@ -38,72 +38,13 @@ export default function IndexPage() {
                 Search For A Paper To Get Started
               </div>
             </div>
-            {/* <div className="flex w-full flex-col items-center gap-2">
-              <div className="flex items-center gap-1">
-                <Info size={15} />
-                <p className="text-sm font-semibold">
-                  Your Key Is Only Stored In Your Browser
-                </p>
-              </div>
-              <div className="h-full w-full max-w-3xl rounded-xl border border-gray-700 bg-white p-1 drop-shadow-xl dark:bg-black">
-                <div className="flex rounded-lg border border-gray-700 bg-white dark:bg-black">
-                  <Input
-                    className="rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    type="password"
-                    placeholder="Enter Valid Open AI API key"
-                    value={key}
-                    onChange={(e) => setKey(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && send(key)}
-                  />
-                  <Button className="flex gap-3 rounded-l-none" type="submit">
-                    <Bot onClick={() => send(key)}></Bot>
-                  </Button>
-                </div>
-              </div>
-            </div> */}
-
-            {/* <div className="m-auto w-[80%]">
-              <hr />
-            </div> */}
-
+        
             <div>
               <div className="m-auto h-full w-fit rounded-xl bg-white p-1 drop-shadow-xl dark:bg-black">
                 <div className="flex rounded-xl border bg-white p-1 dark:bg-black">
                   <ApiFilter disabled={false} setData={setData}></ApiFilter>
                 </div>
               </div>
-
-              {/* {verify !== true ? (
-                <div className="flex flex-col items-center gap-2 text-sm font-semibold">
-                  <div className="mb-1 flex flex-col items-center gap-0.5">
-                    <ArrowUp size={15} />
-                    {
-                      submit === true && verify === false ? (
-                        <p>Invalid Key ❌</p>
-                      ) : (
-                        <p>Enter Valid Key</p>
-                      )
-                    }
-                  </div>
-                  <div className="m-auto h-full w-fit rounded-xl bg-white p-1 drop-shadow-xl hover:cursor-not-allowed dark:bg-black">
-                    <div className="pointer-events-none flex rounded-xl border bg-white p-1 dark:bg-black">
-                      <ApiFilter disabled={true} setData={setData}></ApiFilter>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  onClick={() => send(key)}
-                  className="flex flex-col items-center gap-2 text-sm font-semibold"
-                >
-                  <p>Verified Key ✅</p>
-                  <div className="m-auto h-full w-fit rounded-xl bg-white p-1 drop-shadow-xl dark:bg-black">
-                    <div className=" flex rounded-xl border bg-white p-1 dark:bg-black">
-                      <ApiFilter disabled={false} setData={setData}></ApiFilter>
-                    </div>
-                  </div>
-                </div>
-              )} */}
             </div>
             <div className="text-xs text-center">
               *Currently Koios GPT only has support for Arvix papers, but more are
