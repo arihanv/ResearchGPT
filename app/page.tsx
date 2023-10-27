@@ -14,7 +14,7 @@ export default function IndexPage() {
           <div>
             <h1 className=" whitespace-nowrap text-8xl font-extrabold leading-tight tracking-tighter lg:text-[150px]">
               <span>
-                Koios GPT <b className="text-5xl tracking-normal">.v1</b>
+                KoiosGPT <b className="text-5xl tracking-normal">v1.5</b>
               </span>
             </h1>
             <h1 className="ml-2 text-xl font-semibold tracking-tight">
@@ -44,13 +44,13 @@ export default function IndexPage() {
               </Link>
               </div>
             </div>
-            <div className="mt-10 flex w-[60%] items-center gap-2 ">
+            {/* <div className="mt-10 flex w-[60%] items-center gap-2 ">
               <ChevronUp size={200}></ChevronUp>
               <div className="rounded-xl">
                 *Koios is free but requires an Open AI Key to work. Your API Key
                 is never shared or stored on our servers
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -11,11 +11,11 @@ import PageContent from "./pageContent"
 export default function IndexPage() {
   const [data, setData] = useState<any[]>([])
 
-  useEffect(() => {
-    if (!Cookie.get("key")) {
-      window.location.href = "/auth"
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (!Cookie.get("key")) {
+  //     window.location.href = "/auth"
+  //   }
+  // }, [])
 
   return (
     <section className="m-auto grid max-w-[1200px] items-center gap-6 pb-8 pt-6 md:py-10">

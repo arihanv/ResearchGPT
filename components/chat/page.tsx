@@ -3,7 +3,7 @@
 import React, { useEffect } from "react"
 import { runDown } from "@/api/serverDownload"
 import { run } from "@/api/serverNext"
-import { useAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
@@ -30,7 +30,7 @@ type Message = {
 }
 
 export default function Chat(data: any) {
-  const [pageNumber, setPageNumber] = useAtom(pageNumberAtom)
+  const setPageNumber = useSetAtom(pageNumberAtom)
   const [retrievalChain, setRetrievalChain] = React.useState({})
   const [vectorStore, setVectorStore] = React.useState({} as any)
   const [messages, setMessages] = React.useState<Message[]>([])
@@ -39,7 +39,7 @@ export default function Chat(data: any) {
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false)
   const [completedTyping, setCompletedTyping] = React.useState(false)
   const [displayResponse, setDisplayResponse] = React.useState("")
-  const [modelType, setModelType] = React.useState("gpt-3.5-turbo")
+  // const [modelType, setModelType] = React.useState("gpt-3.5-turbo")
   const [failed, setFailed] = React.useState(false)
   const [long, setLong] = React.useState(false)
 
@@ -72,9 +72,9 @@ export default function Chat(data: any) {
     } catch (e) {
       console.log(e)
       let reason = ""
-      if (modelType == "gpt-4") {
-        reason = " You likely don't have access to the GPT-4 model."
-      }
+      // if (modelType == "gpt-4") {
+      //   reason = " You likely don't have access to the GPT-4 model."
+      // }
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -98,8 +98,8 @@ export default function Chat(data: any) {
   }
 
   useEffect(() => {
-    console.log("line 99", modelType)
-    if (modelType === "" || Object.keys(vectorStore).length === 0) return
+    // console.log("line 99", modelType)
+    if (Object.keys(vectorStore).length === 0) return
     const newModel = new OpenAI({
       modelName: modelType,
       temperature: 0.5,
@@ -180,7 +180,6 @@ export default function Chat(data: any) {
       {
         id: 0,
         text: titleText,
-        // pages: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
       },
     ])
   }
@@ -276,13 +275,13 @@ export default function Chat(data: any) {
         <div className="flex flex-col">
           <div className="flex flex-row flex-wrap items-center justify-center gap-2 rounded-t-lg border border-gray-700 bg-white p-2 dark:bg-black sm:justify-between">
             <div className="flex items-center gap-2">
-              <Avatar>
+              {/* <Avatar>
                 <AvatarImage
                   src="https://avatars.githubusercontent.com/u/14957082?s=200&v=4"
                   alt="@shadcn"
                 />
                 <AvatarFallback>AI</AvatarFallback>
-              </Avatar>
+              </Avatar> */}
               <div className="font-semibold tracking-tight transition-colors">
                 Chat
               </div>
@@ -293,9 +292,9 @@ export default function Chat(data: any) {
                 <div>Connected</div>
               </Badge>
             </div>
-            <div>
+            {/* <div>
               <ComboboxDemo setModelType={setModelType}></ComboboxDemo>
-            </div>
+            </div> */}
           </div>
           <div
             ref={chatDivRef}

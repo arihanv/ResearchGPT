@@ -122,11 +122,11 @@ export default function Hello({}: Props) {
     test()
   }, [])
 
-  React.useEffect(() => {
-    if (!Cookie.get("key")) {
-      window.location.href = "/auth"
-    }
-  }, [])
+  // React.useEffect(() => {
+  //   if (!Cookie.get("key")) {
+  //     window.location.href = "/auth"
+  //   }
+  // }, [])
 
   React.useEffect(() => {
     console.log(key)
