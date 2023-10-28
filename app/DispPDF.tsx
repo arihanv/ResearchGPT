@@ -7,7 +7,7 @@ import axios from "axios"
 import { Document, Page, pdfjs } from "react-pdf"
 
 import "../styles/pdf.css"
-import { pdfDb, pdfStore } from "@/api/det"
+import { pdfDb, pdfStore } from "@/app/api/det"
 import { useAtom } from "jotai"
 import { ChevronLeft, ChevronRight, Loader2, ServerCrash } from "lucide-react"
 

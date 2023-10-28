@@ -1,13 +1,16 @@
 "use client"
 
 import React, { useEffect } from "react"
-import { runDown } from "@/api/serverDownload"
-import { run } from "@/api/serverNext"
-import { useAtom } from "jotai"
+import { runDown } from "@/app/api/serverDownload"
+import { run } from "@/app/api/serverNext"
+import { useSetAtom } from "jotai"
+import { useToast } from "@/components/ui/use-toast"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
 import { Info, Loader2, Send, ServerCrash, Trash } from "lucide-react"
+import GPT3Tokenizer from 'gpt3-tokenizer';
+import {useUser} from "@clerk/nextjs";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -29,8 +32,8 @@ type Message = {
 }
 
 export default function Chat(data: any) {
-  const [pageNumber, setPageNumber] = useAtom(pageNumberAtom)
-  const [retrievalChain, setRetrievalChain] = React.useState({})
+  const setPageNumber = useSetAtom(pageNumberAtom)
+  const [retrievalChain, setRetrievalChain] = React.useState({} as any)
   const [vectorStore, setVectorStore] = React.useState({} as any)
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
@@ -38,30 +41,50 @@ export default function Chat(data: any) {
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false)
   const [completedTyping, setCompletedTyping] = React.useState(false)
   const [displayResponse, setDisplayResponse] = React.useState("")
-  const [modelType, setModelType] = React.useState("gpt-3.5-turbo")
+  // const [modelType, setModelType] = React.useState("gpt-3.5-turbo")
   const [failed, setFailed] = React.useState(false)
   const [long, setLong] = React.useState(false)
 
+  const tokenizer = new GPT3Tokenizer({ type: 'gpt3' })
+  const { toast } = useToast()
+
   const model = new OpenAI({
-    modelName: modelType,
-    temperature: 0.5,
-    openAIApiKey: Cookie.get("key"),
+    modelName: "gpt-3.5-turbo",
+    temperature: 0.8,
+    openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
   })
+
+  const { user } = useUser();
+
+  const showToast = () => {  
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: <div>You have reached the limit of usage. Contact <a>arihan.dev@gmail.com</a> for more credits</div>,
+    });
+  }
 
   const bot = async (input: string) => {
     if (input === "" || Object.keys(retrievalChain).length === 0) return
     setIsProcessing(true)
     try {
-      /*@ts-ignore*/
       const res = await retrievalChain.call({
-        query: `Question: "${input}"`,
+        query: input,
       })
       console.log(res)
-      // console.log(res)
       const pageNumbers = new Set()
+      let contextT = ""
       res.sourceDocuments.forEach((document: any) => {
         const pageNumber = document.metadata.page
         pageNumbers.add(pageNumber)
+        contextT += document.pageContent
+      })
+      const cost = tokenizer.encode(input + contextT).text.length * 0.0015 + tokenizer.encode(res.text).text.length * 0.002
+      console.log(cost/1000, user?.unsafeMetadata.cost)
+      user?.update({
+        unsafeMetadata: {
+          cost: cost/1000 + (user?.unsafeMetadata.cost ? (user?.unsafeMetadata.cost as number) : 0)
+        }
       })
       const pageNums = Array.from(pageNumbers)
       setMessages((prevMessages) => [
@@ -71,9 +94,6 @@ export default function Chat(data: any) {
     } catch (e) {
       console.log(e)
       let reason = ""
-      if (modelType == "gpt-4") {
-        reason = " You likely don't have access to the GPT-4 model."
-      }
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -87,6 +107,15 @@ export default function Chat(data: any) {
   }
 
   const send = (input: string) => {
+    if(user?.unsafeMetadata.cost as number > 0.9){
+      showToast()
+      return
+    }
+    if(tokenizer.encode(input).text.length > 1500){
+      setMessages((prevMessages) => [...prevMessages, { id: 0, text: "Your query is too long" }])
+      return
+    }
+    if (input === "") return
     if (isProcessing) {
       return
     }
@@ -96,39 +125,35 @@ export default function Chat(data: any) {
   }
 
   useEffect(() => {
-    if (modelType === "" || Object.keys(vectorStore).length === 0) return
+    if (Object.keys(vectorStore).length === 0) return
     const newModel = new OpenAI({
-      modelName: modelType,
+      modelName: "gpt-3.5-turbo",
       temperature: 0.5,
-      openAIApiKey: Cookie.get("key"),
+      openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
     })
-    console.log(newModel)
-    let chain = null;
-    if(data.data.summary === undefined){
-      chain = RetrievalQAChain.fromLLM(
-        newModel,
-        vectorStore.asRetriever(),
-        {
-          returnSourceDocuments: true,
-        }
-      )
+    let chain = null
+    console.log("data.data.summary")
+
+
+    if (data.data.summary === undefined) {
+      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(3), {
+        returnSourceDocuments: true,
+      })
     } else {
-    chain = RetrievalQAChain.fromLLM(
-      newModel,
-      vectorStore.asRetriever(),
-      {
+      console.log("chain making.summary")
+      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(3), {
         inputKey: ` Paper Info:
         Summary: ${data.data.summary}
         Title: ${data.data.title}
-        Authors:  ${data.data.authors.map((obj: { name: string }) => obj.name).join(", ")}
+        Authors:  ${data.data.authors
+          .map((obj: { name: string }) => obj.name)
+          .join(", ")}
       `,
         returnSourceDocuments: true,
-      }
-    )
+      })
     }
     setRetrievalChain(chain)
-    console.log(chain)
-  }, [modelType])
+  }, [])
 
   React.useEffect(() => {
     setLong(false)
@@ -149,11 +174,10 @@ export default function Chat(data: any) {
         return
       }
       setVectorStore(result)
-      // console.log(result.memoryVectors)
       const chain = RetrievalQAChain.fromLLM(model, result.asRetriever(), {
         returnSourceDocuments: true,
+        inputKey: "query",
       })
-      // console.log(chain)
       setRetrievalChain(chain)
     }
     try {
@@ -165,12 +189,13 @@ export default function Chat(data: any) {
   }, [data.data])
 
   function resetMessages() {
-    const titleText = !data.path ? `Ask me about "${data.data.title}"` : 'Ask me about this document';
+    const titleText = !data.path
+      ? `Ask me about "${data.data.title}"`
+      : "Ask me about this document"
     setMessages([
       {
         id: 0,
         text: titleText,
-        // pages: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
       },
     ])
   }
@@ -213,7 +238,11 @@ export default function Chat(data: any) {
 
   if (Object.keys(retrievalChain).length === 0) {
     return (
-      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`} >
+      <div
+        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 min-h-[475px] ${
+          data.data.pdf_url ? "h-700px" : "h-525px"
+        }`}
+      >
         <div className="animate-spin text-gray-400 repeat-infinite dark:text-gray-600">
           <Loader2 size={30} />
         </div>
@@ -223,7 +252,11 @@ export default function Chat(data: any) {
   }
   if (failed) {
     return (
-      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
+      <div
+        className={`flex max-w-3xl items-center min-h-[475px] justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+          data.data.pdf_url ? "h-700px" : "h-525px"
+        }`}
+      >
         <div className="flex max-w-[200px] flex-col items-center gap-2 text-center">
           <ServerCrash size={30} />
           <div className="font-semibold">Failed to Index</div>
@@ -238,7 +271,11 @@ export default function Chat(data: any) {
 
   if (long) {
     return (
-      <div className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${data.data.pdf_url ? 'h-700px' : 'h-525px'}`}>
+      <div
+        className={`flex max-w-3xl min-h-[475px] items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+          data.data.pdf_url ? "h-700px" : "h-525px"
+        }`}
+      >
         <div className="flex max-w-[150px] flex-col items-center gap-2 text-center">
           <ServerCrash size={30} />
           <div className="font-semibold">Too Large</div>
@@ -266,18 +303,20 @@ export default function Chat(data: any) {
               </div>
               <Badge
                 variant="secondary"
-                className="ml-2 flex items-center bg-green-200 bg-opacity-[0.6] text-sm dark:bg-green-900"
+                className="ml-2 flex items-center bg-green-200 bg-opacity-[0.6] text-sm dark:bg-green-900 pb-0 pt-0"
               >
                 <div>Connected</div>
               </Badge>
             </div>
-            <div>
+            {/* <div>
               <ComboboxDemo setModelType={setModelType}></ComboboxDemo>
-            </div>
+            </div> */}
           </div>
           <div
             ref={chatDivRef}
-            className={`overflow-y-scroll border-x border-b border-gray-700 p-2 ${data.path ? 'h-[575px]' : 'h-[400px]'}`} 
+            className={`overflow-y-scroll border-x border-b border-gray-700 p-2 ${
+              data.path ? "h-[575px]" : "h-[400px]"
+            }`}
           >
             {messages.map((message, index) => (
               <div
@@ -408,16 +447,24 @@ export default function Chat(data: any) {
               placeholder="Enter message"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              disabled={isProcessing}
               onKeyDown={(e) => e.key === "Enter" && send(input)}
             />
-            <Button className="flex gap-3 rounded-l-none" type="submit">
-              <Send onClick={() => send(input)}></Send>
+            <Button
+              className="flex gap-3 rounded-l-none"
+              onClick={() => send(input)}
+              type="submit"
+              disabled={isProcessing}
+            >
+              <Send></Send>
             </Button>
             <Button
+              disabled={isProcessing}
               className="ml-2 flex gap-3 bg-red-400 bg-opacity-100"
               type="submit"
+              onClick={() => resetMessages()}
             >
-              <Trash onClick={() => resetMessages()}></Trash>
+              <Trash></Trash>
             </Button>
           </div>
         </div>

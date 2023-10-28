@@ -1,6 +1,7 @@
 import "@/styles/globals.css"
 import { Metadata } from "next"
-
+import { ClerkProvider } from '@clerk/nextjs'
+import { Toaster } from "@/components/ui/toaster"
 import { siteConfig } from "@/config/site"
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
+    <ClerkProvider>
       <html lang="en" suppressHydrationWarning={true}>
         <head />
         <body
@@ -43,12 +45,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />
               <div className="flex-1">{children}<Footer></Footer></div>
+              <Toaster />
             </div>
-            {/* Remove this to delete the thing in the bottom left */}
             <TailwindIndicator />
           </ThemeProvider>
         </body>
       </html>
-    </>
+  </ClerkProvider>
+  </>
   )
 }

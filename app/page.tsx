@@ -14,7 +14,7 @@ export default function IndexPage() {
           <div>
             <h1 className=" whitespace-nowrap text-8xl font-extrabold leading-tight tracking-tighter lg:text-[150px]">
               <span>
-                Koios GPT <b className="text-5xl tracking-normal">.v1</b>
+                KoiosGPT <b className="text-5xl tracking-normal">v1.5</b>
               </span>
             </h1>
             <h1 className="ml-2 text-xl font-semibold tracking-tight">
@@ -44,39 +44,16 @@ export default function IndexPage() {
               </Link>
               </div>
             </div>
-            <div className="mt-10 flex w-[60%] items-center gap-2 ">
+            {/* <div className="mt-10 flex w-[60%] items-center gap-2 ">
               <ChevronUp size={200}></ChevronUp>
               <div className="rounded-xl">
                 *Koios is free but requires an Open AI Key to work. Your API Key
                 is never shared or stored on our servers
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
-
-      {/* <div className="relative grid grid-cols-1 grid-rows-1">
-          <h1 className="absolute bottom-0 left-0 right-0 top-0 z-10 m-auto flex flex-col items-center justify-center gap-2 whitespace-nowrap text-[150px] font-extrabold leading-tight tracking-tighter">
-            <div className="w-fit rounded-sm px-4 py-0.5 backdrop-blur-lg  ">
-              Koios GPT
-            </div>
-          </h1>
-          <div className="dark:invert min-h-[550px]">
-            <Animation />
-          </div>
-        </div> */}
-      {/* <p className="max-w-[700px] text-lg text-muted-foreground">
-          Accessible and customizable components that you can copy and paste
-          into your apps. Free. Open Source. And Next.js 13 Ready.
-        </p> */}
-      {/* <div className="flex items-center justify-between gap-2 w-full px-1">
-          <div>
-            Hello
-          </div>
-          <div>
-            hello
-          </div>
-      </div> */}
     </section>
   )
 }

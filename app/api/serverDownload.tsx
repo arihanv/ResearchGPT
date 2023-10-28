@@ -13,7 +13,7 @@ async function getData(query: string) {
   const res = await fetch(url)
 
   if (!res.ok) {
-    console.error(await res.json())
+    // console.error(await res.json())
     throw new Error("Failed to fetch data")
   }
   return res.json()
@@ -53,7 +53,7 @@ const runDown = async (path: "string") => {
     console.log("Already exists")
     const loadStore = await MemoryVectorStore.fromExistingIndex(
       new OpenAIEmbeddings({
-        openAIApiKey: Cookie.get("key"),
+        openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
       })
     )
     loadStore.memoryVectors = loadDeta
@@ -66,7 +66,7 @@ const runDown = async (path: "string") => {
       response.text,
       response.meta,
       new OpenAIEmbeddings({
-        openAIApiKey: Cookie.get("key"),
+        openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
       })
     )
     await pdfStore.put(embed_path, {

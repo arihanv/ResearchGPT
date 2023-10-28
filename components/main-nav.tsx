@@ -15,13 +15,13 @@ export function MainNav({ items }: MainNavProps) {
   return (
     <div className="flex gap-6 md:gap-10">
       <Link href="/" className="hidden items-center space-x-2 md:flex">
-        <Avatar>
+        {/* <Avatar>
           <AvatarImage
             src="https://avatars.githubusercontent.com/u/63890951?v=4"
             alt="@shadcn"
           />
           <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        </Avatar> */}
         <span className="hidden font-bold sm:inline-block">
           {siteConfig.name}
         </span>
