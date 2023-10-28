@@ -33,15 +33,19 @@ const Thumbnail = (props: any) => {
       // Check if the file exists before attempting to delete
       if (props.path) {
         await pdfStore.delete(props.path)
+        const embeddedThumbPath = props.path.replace(".pdf", "_embedding")
+        await pdfStore.delete(embeddedThumbPath)
+        const imagePath = props.path.replace(".pdf", "_thumbnail.png")
+        await pdfStore.delete(imagePath)
       }
 
-      if (props.thumb_path) {
-        await pdfStore.delete(props.thumb_path)
-        const embeddedThumbPath = props.thumb_path.replace(/_.*/, "_embedding")
-        if (embeddedThumbPath) {
-          await pdfStore.delete(embeddedThumbPath)
-        }
-      }
+      // if (props.thumb_path) {
+      //   await pdfStore.delete(props.thumb_path)
+      //   const embeddedThumbPath = props.thumb_path.replace(/_.*/, "_embedding")
+      //   if (embeddedThumbPath) {
+      //     await pdfStore.delete(embeddedThumbPath)
+      //   }
+      // }
 
       await pdfDb.update(
         { [docNum]: pdfDb.util.trim(), numDocs: res.numDocs as number - 1 },
