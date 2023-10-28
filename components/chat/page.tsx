@@ -132,7 +132,6 @@ export default function Chat(data: any) {
       openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
     })
     let chain = null
-    console.log("data.data.summary")
 
 
     if (data.data.summary === undefined) {
@@ -164,6 +163,7 @@ export default function Chat(data: any) {
     const fetchVectorStore = async () => {
       let result = null
       if (data.path !== undefined) {
+        console.warn("runDown", data.path)
         result = await runDown(data.path)
       } else {
         result = await run(data.data.pdf_url)

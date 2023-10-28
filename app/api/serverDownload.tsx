@@ -9,7 +9,7 @@ async function getData(query: string) {
   const url = `https://test-1-z9723294.deta.app/splits?url=${encodeURIComponent(
     query
   )}`
-
+  console.warn(url)
   const res = await fetch(url)
 
   if (!res.ok) {
@@ -46,8 +46,9 @@ function cleanData(data: any) {
 
 const runDown = async (path: "string") => {
   const embed_path = path.replace(".pdf", "_embedding")
-  console.log(embed_path)
+  console.log("embedpath", embed_path)
   const loadDeta = await checkExist(embed_path)
+  console.log("loaddeta",loadDeta)
 
   if (loadDeta !== null) {
     console.log("Already exists")

@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 
 import React from "react"
@@ -28,8 +29,10 @@ export default function Hello() {
   const [modalOpen, setModalOpen] = React.useState(false)
   const [name, setInput] = React.useState<string>("")
   const [fileUp, setFile] = React.useState<File | null>(null)
-
-  const {userId} = useAuth()
+  const {isLoaded, userId} = useAuth()
+  // if (!isLoaded || !userId) {
+  //   return null
+  // }
   const key = userId as string
 
   // async function test() {
@@ -131,8 +134,7 @@ export default function Hello() {
   // }, [])
 
   React.useEffect(() => {
-    console.log(key)
-    if (key == "") return
+    exp()
     async function exp() {
       setLoading(true)
       const res = await pdfDb.get(key)
@@ -145,8 +147,7 @@ export default function Hello() {
       console.log("done")
       setLoading(false)
     }
-    exp()
-  }, [key])
+  }, [key, isLoaded, userId])
 
   const handleButtonClick = () => {
     if (fileInputRef.current) {
