@@ -23,7 +23,7 @@ export default function InfoBox({ data }: Props) {
             <TabsContent value="quick" className="h-[80%] overflow-y-scroll">
               <div className="flex flex-col gap-2 p-1">
                 <div className="flex items-center justify-start gap-4">
-                  <Badge className="overflow w-fit text-xs hover:bg-black dark:hover:bg-white">
+                  <Badge className="overflow w-fit text-xs hover:bg-black dark:hover:bg-white pb-0">
                     Computer Science
                   </Badge>
                   <div className="flex flex-col text-xs tracking-tighter text-gray-500 ">

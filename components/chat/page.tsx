@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useEffect } from "react"
-import { runDown } from "@/api/serverDownload"
-import { run } from "@/api/serverNext"
+import { runDown } from "@/app/api/serverDownload"
+import { run } from "@/app/api/serverNext"
 import { useSetAtom } from "jotai"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
@@ -31,7 +31,7 @@ type Message = {
 
 export default function Chat(data: any) {
   const setPageNumber = useSetAtom(pageNumberAtom)
-  const [retrievalChain, setRetrievalChain] = React.useState({})
+  const [retrievalChain, setRetrievalChain] = React.useState({} as any)
   const [vectorStore, setVectorStore] = React.useState({} as any)
   const [messages, setMessages] = React.useState<Message[]>([])
   const [input, setInput] = React.useState<string>("")
@@ -44,21 +44,19 @@ export default function Chat(data: any) {
   const [long, setLong] = React.useState(false)
 
   const model = new OpenAI({
-    modelName: modelType,
-    temperature: 0.5,
-    openAIApiKey: Cookie.get("key"),
+    modelName: "gpt-3.5-turbo",
+    temperature: 0.8,
+    openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
   })
 
   const bot = async (input: string) => {
     if (input === "" || Object.keys(retrievalChain).length === 0) return
     setIsProcessing(true)
     try {
-      /*@ts-ignore*/
       const res = await retrievalChain.call({
-        query: `Question: "${input}"`,
+        query: input,
       })
       console.log(res)
-      // console.log(res)
       const pageNumbers = new Set()
       res.sourceDocuments.forEach((document: any) => {
         const pageNumber = document.metadata.page
@@ -72,9 +70,6 @@ export default function Chat(data: any) {
     } catch (e) {
       console.log(e)
       let reason = ""
-      // if (modelType == "gpt-4") {
-      //   reason = " You likely don't have access to the GPT-4 model."
-      // }
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -98,17 +93,16 @@ export default function Chat(data: any) {
   }
 
   useEffect(() => {
-    // console.log("line 99", modelType)
     if (Object.keys(vectorStore).length === 0) return
     const newModel = new OpenAI({
-      modelName: modelType,
+      modelName: "gpt-3.5-turbo",
       temperature: 0.5,
-      openAIApiKey: Cookie.get("key"),
+      openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
     })
-    console.log("New model")
-    console.log(newModel)
     let chain = null
     console.log("data.data.summary")
+
+
     if (data.data.summary === undefined) {
       chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(), {
         returnSourceDocuments: true,
@@ -125,11 +119,9 @@ export default function Chat(data: any) {
       `,
         returnSourceDocuments: true,
       })
-      // chain.memory = new BufferWindowMemory({ k: 1})
     }
     setRetrievalChain(chain)
-    console.log(chain)
-  }, [modelType])
+  }, [])
 
   React.useEffect(() => {
     setLong(false)
@@ -150,7 +142,6 @@ export default function Chat(data: any) {
         return
       }
       setVectorStore(result)
-      // console.log(result.memoryVectors)
       if (data.data.summary === undefined) {
         console.error("no summary")
       }
@@ -158,10 +149,6 @@ export default function Chat(data: any) {
         returnSourceDocuments: true,
         inputKey: "query",
       })
-
-      // chain.memory = "title is cool"
-
-      console.log(chain)
       setRetrievalChain(chain)
     }
     try {
@@ -223,7 +210,7 @@ export default function Chat(data: any) {
   if (Object.keys(retrievalChain).length === 0) {
     return (
       <div
-        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 min-h-[475px] ${
           data.data.pdf_url ? "h-700px" : "h-525px"
         }`}
       >
@@ -237,7 +224,7 @@ export default function Chat(data: any) {
   if (failed) {
     return (
       <div
-        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+        className={`flex max-w-3xl items-center min-h-[475px] justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
           data.data.pdf_url ? "h-700px" : "h-525px"
         }`}
       >
@@ -256,7 +243,7 @@ export default function Chat(data: any) {
   if (long) {
     return (
       <div
-        className={`flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
+        className={`flex max-w-3xl min-h-[475px] items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-100 p-1 font-medium text-gray-400 drop-shadow-xl dark:bg-gray-900 dark:text-gray-500 ${
           data.data.pdf_url ? "h-700px" : "h-525px"
         }`}
       >
@@ -275,19 +262,19 @@ export default function Chat(data: any) {
         <div className="flex flex-col">
           <div className="flex flex-row flex-wrap items-center justify-center gap-2 rounded-t-lg border border-gray-700 bg-white p-2 dark:bg-black sm:justify-between">
             <div className="flex items-center gap-2">
-              {/* <Avatar>
+              <Avatar>
                 <AvatarImage
                   src="https://avatars.githubusercontent.com/u/14957082?s=200&v=4"
                   alt="@shadcn"
                 />
                 <AvatarFallback>AI</AvatarFallback>
-              </Avatar> */}
+              </Avatar>
               <div className="font-semibold tracking-tight transition-colors">
                 Chat
               </div>
               <Badge
                 variant="secondary"
-                className="ml-2 flex items-center bg-green-200 bg-opacity-[0.6] text-sm dark:bg-green-900"
+                className="ml-2 flex items-center bg-green-200 bg-opacity-[0.6] text-sm dark:bg-green-900 pb-0 pt-0"
               >
                 <div>Connected</div>
               </Badge>
@@ -431,16 +418,19 @@ export default function Chat(data: any) {
               placeholder="Enter message"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              disabled={isProcessing}
               onKeyDown={(e) => e.key === "Enter" && send(input)}
             />
             <Button
               className="flex gap-3 rounded-l-none"
               onClick={() => send(input)}
               type="submit"
+              disabled={isProcessing}
             >
               <Send></Send>
             </Button>
             <Button
+              disabled={isProcessing}
               className="ml-2 flex gap-3 bg-red-400 bg-opacity-100"
               type="submit"
               onClick={() => resetMessages()}

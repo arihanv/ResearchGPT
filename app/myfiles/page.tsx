@@ -1,8 +1,8 @@
 "use client"
 
 import React from "react"
-import { pdfDb, pdfStore } from "@/api/det"
-import { generateRandomStringWithSeed } from "@/api/utils"
+import { pdfDb, pdfStore } from "@/app/api/det"
+import { generateRandomStringWithSeed } from "@/app/api/utils"
 import Cookie from "js-cookie"
 import { FileSearch, Loader2, Upload } from "lucide-react"
 
@@ -17,11 +17,10 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import Thumbnail from "@/components/pdfDash/thumbnail"
+import { useAuth } from "@clerk/nextjs"
 
-type Props = {}
-
-export default function Hello({}: Props) {
-  const [key, setKey] = React.useState("")
+export default function Hello() {
+  // const [key, setKey] = React.useState("")
   const [loading, setLoading] = React.useState(true)
   const [docInfo, setDocInfo] = React.useState<any>({})
   const fileInputRef = React.useRef<HTMLInputElement>(null)
@@ -30,12 +29,15 @@ export default function Hello({}: Props) {
   const [name, setInput] = React.useState<string>("")
   const [fileUp, setFile] = React.useState<File | null>(null)
 
-  async function test() {
-    let result = await pdfStore.list()
-    console.log(result)
-    const apikey = Cookie.get("key")
-    setKey(generateRandomStringWithSeed(apikey as string, apikey as string, 5))
-  }
+  const {userId} = useAuth()
+  const key = userId as string
+
+  // async function test() {
+  //   // let result = await pdfStore.list()
+  //   // console.log(result)
+  //   // const apikey = Cookie.get("key")
+  //   setKey(generateRandomStringWithSeed(userId as string, userId as string, 5))
+  // }
 
   const handleFileChange = async (name: string) => {
     if (key == "") return
@@ -118,9 +120,9 @@ export default function Hello({}: Props) {
     }
   }
 
-  React.useEffect(() => {
-    test()
-  }, [])
+  // React.useEffect(() => {
+  //   test()
+  // }, [])
 
   // React.useEffect(() => {
   //   if (!Cookie.get("key")) {

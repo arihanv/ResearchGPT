@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { pdfDb, pdfStore } from "@/api/det"
+import { pdfDb, pdfStore } from "@/app/api/det"
 import { Loader2, Trash2 } from "lucide-react"
 
 const Thumbnail = (props: any) => {
