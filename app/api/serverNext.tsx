@@ -27,7 +27,6 @@ async function getData(query: string) {
 async function checkExist(id: string) {
   try {
     const file = await drive.get(id)
-    console.error(id)
     if (file === null) return null
     const content = await file.text()
     const jsonData = JSON.parse(content)

@@ -111,6 +111,10 @@ export default function Chat(data: any) {
       showToast()
       return
     }
+    if(tokenizer.encode(input).text.length > 1500){
+      setMessages((prevMessages) => [...prevMessages, { id: 0, text: "Your query is too long" }])
+      return
+    }
     if (input === "") return
     if (isProcessing) {
       return
@@ -170,9 +174,6 @@ export default function Chat(data: any) {
         return
       }
       setVectorStore(result)
-      if (data.data.summary === undefined) {
-        console.error("no summary")
-      }
       const chain = RetrievalQAChain.fromLLM(model, result.asRetriever(), {
         returnSourceDocuments: true,
         inputKey: "query",

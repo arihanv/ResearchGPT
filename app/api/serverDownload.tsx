@@ -13,7 +13,7 @@ async function getData(query: string) {
   const res = await fetch(url)
 
   if (!res.ok) {
-    console.error(await res.json())
+    // console.error(await res.json())
     throw new Error("Failed to fetch data")
   }
   return res.json()

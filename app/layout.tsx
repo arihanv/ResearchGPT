@@ -29,13 +29,6 @@ interface RootLayoutProps {
   children: React.ReactNode
 }
 
-if (process.env.NODE_ENV === "development") {
-  console.log("Development mode")
-  console.log = function() {}
-} else {
-  console.log = function() {}
-}
-
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
