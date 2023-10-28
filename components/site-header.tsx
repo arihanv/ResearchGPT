@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
 import { siteConfig } from "@/config/site"
 import { buttonVariants } from "@/components/ui/button"
@@ -17,7 +18,15 @@ export function SiteHeader() {
         <MainNav items={siteConfig.mainNav} />
         <div className="flex flex-1 items-center justify-end space-x-4">
           {/* <CommandMenu /> */}
-          <nav className="flex items-center space-x-1">           
+          <SignedIn>
+            {/* Mount the UserButton component */}
+            <UserButton />
+          </SignedIn>
+          <SignedOut>
+            {/* Signed out users get sign in button */}
+            <SignInButton />
+          </SignedOut>
+          <nav className="flex items-center space-x-1">
             <ThemeToggle />
           </nav>
         </div>
