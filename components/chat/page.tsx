@@ -4,11 +4,13 @@ import React, { useEffect } from "react"
 import { runDown } from "@/app/api/serverDownload"
 import { run } from "@/app/api/serverNext"
 import { useSetAtom } from "jotai"
+import { useToast } from "@/components/ui/use-toast"
 import Cookie from "js-cookie"
 import { RetrievalQAChain } from "langchain/chains"
 import { OpenAI } from "langchain/llms/openai"
-import { BufferWindowMemory } from "langchain/memory"
 import { Info, Loader2, Send, ServerCrash, Trash } from "lucide-react"
+import GPT3Tokenizer from 'gpt3-tokenizer';
+import {useUser} from "@clerk/nextjs";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -43,11 +45,24 @@ export default function Chat(data: any) {
   const [failed, setFailed] = React.useState(false)
   const [long, setLong] = React.useState(false)
 
+  const tokenizer = new GPT3Tokenizer({ type: 'gpt3' })
+  const { toast } = useToast()
+
   const model = new OpenAI({
     modelName: "gpt-3.5-turbo",
     temperature: 0.8,
     openAIApiKey: process.env.NEXT_PUBLIC_OPENAIKEY,
   })
+
+  const { user } = useUser();
+
+  const showToast = () => {  
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: <div>You have reached the limit of usage. Contact <a>arihan.dev@gmail.com</a> for more credits</div>,
+    });
+  }
 
   const bot = async (input: string) => {
     if (input === "" || Object.keys(retrievalChain).length === 0) return
@@ -58,9 +73,18 @@ export default function Chat(data: any) {
       })
       console.log(res)
       const pageNumbers = new Set()
+      let contextT = ""
       res.sourceDocuments.forEach((document: any) => {
         const pageNumber = document.metadata.page
         pageNumbers.add(pageNumber)
+        contextT += document.pageContent
+      })
+      const cost = tokenizer.encode(input + contextT).text.length * 0.0015 + tokenizer.encode(res.text).text.length * 0.002
+      console.log(cost/1000, user?.unsafeMetadata.cost)
+      user?.update({
+        unsafeMetadata: {
+          cost: cost/1000 + (user?.unsafeMetadata.cost ? (user?.unsafeMetadata.cost as number) : 0)
+        }
       })
       const pageNums = Array.from(pageNumbers)
       setMessages((prevMessages) => [
@@ -83,6 +107,10 @@ export default function Chat(data: any) {
   }
 
   const send = (input: string) => {
+    if(user?.unsafeMetadata.cost as number > 0.9){
+      showToast()
+      return
+    }
     if (input === "") return
     if (isProcessing) {
       return
@@ -104,12 +132,12 @@ export default function Chat(data: any) {
 
 
     if (data.data.summary === undefined) {
-      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(), {
+      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(3), {
         returnSourceDocuments: true,
       })
     } else {
       console.log("chain making.summary")
-      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(), {
+      chain = RetrievalQAChain.fromLLM(newModel, vectorStore.asRetriever(3), {
         inputKey: ` Paper Info:
         Summary: ${data.data.summary}
         Title: ${data.data.title}
